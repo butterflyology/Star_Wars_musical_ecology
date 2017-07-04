@@ -1,18 +1,8 @@
----
-title: "Star Wars musical ecology"
-author: "Chris Hamm"
-date: "`r format(Sys.time(), '%Y-%m-%d')`"
-output: 
-  html_document:
-    keep_md: TRUE
-    toc: TRUE
-    toc_float: TRUE
-    toc_depth: 3
----
+# Star Wars musical ecology
+Chris Hamm  
+`r format(Sys.time(), '%Y-%m-%d')`  
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.align = "center", cache = TRUE)
-```
+
 
 ## Introduction
 
@@ -31,25 +21,15 @@ Table: Example of a count matrix where each row represents a habitat and each co
 
 In this example, we can see that Donner Pass and Sierraville are similar to each other for two species. Also Davis and Sierraville are somewhat similar to each other because they have one species in common. If we were going to group these sites based on similarity, Donner Pass and Sierraville would be more similar to each other than to Davis.
 
-```{r preliminaries, include = FALSE}
-set.seed(896235)
 
-library("vegan")
-library("vegetarian")
-library("spaceMovie")
-```
-```{r Toy_example, include = FALSE}
-Toy_data <- data.frame(D_plex = c(5, 4, 0), V_cardui = c(6, 2, 2), A_bredowii =  c(0, 0, 3), row.names = c("Donner_Pass", "Sierraville", "Davis"))
 
-Toy_dist <- vegdist(Toy_data, method = "jaccard", diag = FALSE)
-Toy_clust <- hclust(Toy_dist, "ward.D")
-```
 
 If we plot these relationships as a tree (after some statistical wankery) we see that Donner Pass and Sierraville appear close together with Davis far apart from them. 
 
-```{r Toy_clust, echo = FALSE, fig.cap = "Cluster plot of the toy example referred to above."}
-plot(Toy_clust, main = "", xlab = "", sub = "")
-```
+<div class="figure" style="text-align: center">
+<img src="SW_me_files/figure-html/Toy_clust-1.png" alt="Cluster plot of the toy example referred to above."  />
+<p class="caption">Cluster plot of the toy example referred to above.</p>
+</div>
 
 Please note here that I have created this page using `RMardown` in `RStudio`. All of the code and data used to create this post are freely available through this project's [`github` repository]().
 
@@ -76,10 +56,7 @@ The data I ended up with, and which is used here had:
 * **7** rows - one for each film ("ecosystem")
 * **35** columns - one for each theme ("species")
 
-```{r load_data, include = FALSE}
-SW_data <- read.csv("../data/DWC_theme_tracker.csv", header = TRUE, row.names = 1)
-dim(SW_data)
-```
+
 
 These data could be incomplete and are in need of improvement. I am particularly concerned by the lack of "rare" themes in the data set. Rare things are important in ecology. There are two ways you could contribute:
 
@@ -92,78 +69,26 @@ These data could be incomplete and are in need of improvement. I am particularly
 ### Clustering
 Now we'll make a tree depicting the relationships between the seven films of the *Star Wars* saga just as we did in the above example. 
 
-```{r SW_clust, include = FALSE}
-SW_dist <- vegdist(SW_data, method = "jaccard", diag = FALSE, na.rm = TRUE)
 
-SW_clust <- hclust(SW_dist, method = "ward.D")
-```
 
 A prediction on the clustering analysis. The three original trilogy films will cluster together and the pre-quels will cluster together. I think that TFA will be more similar, musically, to the original trilogy than the pre-quels. 
 
-```{r SW_plot, echo = FALSE, fig.cap = "Clustering of the Star Wars films based on the their musical theme counts."}
-plot(SW_clust, main = "", xlab = "", sub = "")
-```
-
-```{r DW_d, include = FALSE}
-# A simple function to calculate a range of q values for a, b, and g diversity
-D.iter.q <- function(data, level, q){
-Spoon <- matrix(data = NA, ncol = 1, nrow = 6)
-  for (i in 1:6){
-  temp <- d(data, lev = level, q = i - 1, boot = FALSE)
-  Spoon[i, 1] <- temp[[1]]
-  }
-  return(Spoon)
-}
+<div class="figure" style="text-align: center">
+<img src="SW_me_files/figure-html/SW_plot-1.png" alt="Clustering of the Star Wars films based on the their musical theme counts."  />
+<p class="caption">Clustering of the Star Wars films based on the their musical theme counts.</p>
+</div>
 
 
-EIa <- D.iter.q(data = SW_data[1, ], level = "alpha", q = 5)
-EIIa <- D.iter.q(data = SW_data[2, ], level = "alpha", q = 5)
-EIIIa <- D.iter.q(data = SW_data[3, ], level = "alpha", q = 5)
-EIVa <- D.iter.q(data = SW_data[4, ], level = "alpha", q = 5)
-EVa <- D.iter.q(data = SW_data[5, ], level = "alpha", q = 5)
-EVIa <- D.iter.q(data = SW_data[6, ], level = "alpha", q = 5)
-EVIIa <- D.iter.q(data = SW_data[7, ], level = "alpha", q = 5)
-```
 
 
 ### Jost's D
 
 Here we count the number of different themes and consider how many different themes there are if we weight "rarity." 
 
-```{r alpha_plot, echo = FALSE, fig.cap = "Plot of the effective number of themes by Star Wars film"}
-plot(x = seq(from = 0, to = 5, length.out = 4), y = seq(from = 0, to = 16, length.out = 4), xaxt = "n", type = "n", ylab = expression(paste(italic(alpha))), las = 1, xlab = "", main = "")
-axis(1, at = c(0, 1, 2, 3, 4, 5))
-
-# EI
-points(y = EIa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("TPM")[1])
-lines(y = EIa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("TPM")[1])
-
-# E2
-points(y = EIIa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("AOTC")[2])
-lines(y = EIIa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("AOTC")[2])
-
-# E3
-points(y = EIIIa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("ROTS")[6])
-lines(y = EIIIa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("ROTS")[6])
-
-# E4
-points(y = EIVa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("ANH")[4])
-lines(y = EIVa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("ANH")[4])
-
-# E5
-points(y = EVa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("TESB")[5])
-lines(y = EVa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("TESB")[5])
-
-# E6
-points(y = EVIa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("ROTJ")[3])
-lines(y = EVIa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("ROTJ")[5])
-
-# E7
-points(y = EVIIa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("TFA")[4])
-lines(y = EVIIa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("TFA")[4])
-
-legend("topright", bty = "n", legend = c("E I", "E II", "E III", "E IV", "E V", "E VI", "E VII"), pch = 19, col = c(SW_palette("TPM")[1], SW_palette("AOTC")[2], SW_palette("ROTS")[6], SW_palette("ANH")[4], SW_palette("TESB")[5], SW_palette("ROTJ")[5], SW_palette("TFA")[4]))
-```
+<div class="figure" style="text-align: center">
+<img src="SW_me_files/figure-html/alpha_plot-1.png" alt="Plot of the effective number of themes by Star Wars film"  />
+<p class="caption">Plot of the effective number of themes by Star Wars film</p>
+</div>
 
 To read this plot we look at the y (vertical) axis to see the number of themes. Along the x (horizontal) axis we have the different weights we place on "rarity." A weight of 0 means that all themes are equal and it represents the actual number of themes present in each film. As we move right along the x axis we decrease the effect that a rarely occuring theme has on the y axis value. All the way to the right we hardly consider the effect that rare themes have on the effective number of themes. 
 
