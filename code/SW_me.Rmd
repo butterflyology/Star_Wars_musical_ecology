@@ -36,6 +36,7 @@ set.seed(896235)
 
 library("vegan")
 library("vegetarian")
+library("MASS")
 library("spaceMovie")
 ```
 ```{r Toy_example, include = FALSE}
@@ -168,3 +169,30 @@ legend("topright", bty = "n", legend = c("E I", "E II", "E III", "E IV", "E V", 
 To read this plot we look at the y (vertical) axis to see the number of themes. Along the x (horizontal) axis we have the different weights we place on "rarity." A weight of 0 means that all themes are equal and it represents the actual number of themes present in each film. As we move right along the x axis we decrease the effect that a rarely occuring theme has on the y axis value. All the way to the right we hardly consider the effect that rare themes have on the effective number of themes. 
 
 Note that Episode IV has the fewest number of themes. This is likely a result of incomplete data in the spreadsheet. E III has the most themes in our data set. One thing that appears evident from this analysis, is that all films have ~6 themes frequently used throughout. 
+
+One last note of geekery. The colors from that plot were made with an `R` pacakge called [`spaceMovie`](https://github.com/butterflyology/spaceMovie) that uses colors from the *Star Wars* films.
+
+### NMDS
+
+Lastly, I want to employ a method callen **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in ordination space. This doesn't mean much except to say that similar things should be closer together than dissimilar things. 
+
+```{r nmds, include = FALSE}
+SW_nmds <- metaMDS(SW_dist, trace = FALSE)
+stressplot(SW_nmds, SW_dist)
+```
+
+```{r nmds_plot, echo = FALSE, warning = FALSE, fig.cap = "NMDS Ordination plot of the 7 Star Wars films."}
+plot(SW_nmds, type = "t", las = 1, cex = 1.2)
+```
+
+Here we see that the original trilogy films are closer to each other than they are to other films, and TFA is still closest to the original trilogy. The prequels are spread out a bit but one could easily draw a circle around those films without including any of the other films. *The Force Awakens* is out there by itself a bit but still closest to the original trilogy.
+
+## Conclusions
+
+I have three big take aways about the music of the *Star Wars* films from this exercise:
+
+1. The original trilogy films are most similar to each other.
+1. The prequel films are most similar to eah other.
+1. *The Force Awakens* is more similar to the original trilogy than to the prequles.
+
+These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that *The Force Awakens* is building off of the original trilogy, which is the most recent one relative to *TFA*. 

@@ -10,3 +10,4 @@ Major commits:
 
 1. 2017-07-04: Initial commit.
 1. 2017-07-04: Happy Independence Day, or as we call it: "Brexit 1.0." This commit features use of Jost's d and numbers equivalent alpha diversity estimates for varying levels of q. 
+1. 2017-07-08: Added NMDS plot and conclusions
