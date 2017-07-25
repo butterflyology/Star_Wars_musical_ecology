@@ -60,8 +60,9 @@ The data I ended up with, and which is used here had:
 
 These data could be incomplete and are in need of improvement. I am particularly concerned by the lack of "rare" themes in the data set. Rare things are important in ecology. There are two ways you could contribute:
 
-* Edit a Google Doc
-* Submit a PR through `github` (for those with technical skills). 
+* Edit a [Google Doc](https://docs.google.com/spreadsheets/d/1zN0OdNH8btShE3pk09FUaM7Z-UhRg9gZdgxe_IKWkfY/edit?usp=sharing)
+* Submit a PR through [`github`](https://github.com/butterflyology/Star_Wars_musical_ecology) (for those with technical skills).
+* Email me through my [website](https://butterflyology.github.io/)
 
 ## Analysis
 
@@ -114,7 +115,7 @@ Here we see that the original trilogy films are closer to each other than they a
 I have three big take aways about the music of the *Star Wars* films from this exercise:
 
 1. The original trilogy films are most similar to each other.
-1. The prequel films are most similar to eah other.
-1. *The Force Awakens* is more similar to the original trilogy than to the prequles.
+1. The prequel films are most similar to each other.
+1. *The Force Awakens* is more similar to the original trilogy than to the prequels.
 
 These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that *The Force Awakens* is building off of the original trilogy, which is the most recent one relative to *TFA*. 
