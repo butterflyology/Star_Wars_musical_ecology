@@ -52,7 +52,7 @@ If we plot these relationships as a tree (after some statistical wankery) we see
 plot(Toy_clust, main = "", xlab = "", sub = "")
 ```
 
-Please note here that I have created this page using `RMardown` in `RStudio`. All of the code and data used to create this post are freely available through this project's [`github` repository]().
+Please note here that I have created this page using `RMarkdown` in `RStudio`. All of the code and data used to create this post are freely available through this project's [`github` repository]().
 
 ### Star Wars musical ecology
 
