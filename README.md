@@ -12,3 +12,4 @@ Major commits:
 1. 2017-07-04: Happy Independence Day, or as we call it: "Brexit 1.0." This commit features use of Jost's d and numbers equivalent alpha diversity estimates for varying levels of q. 
 1. 2017-07-08: Added NMDS plot and conclusions
 1. 2017-07-25: Merged PR from @RallidaeRule, added link to google doc and my website
+1. 2017-07-31: Corrected missing data, the Emperor's Theme was in ROTJ ~4 times. 
