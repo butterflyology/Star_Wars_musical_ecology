@@ -4,7 +4,6 @@ author: "Chris Hamm"
 date: "`r format(Sys.time(), '%Y-%m-%d')`"
 output: 
   html_document:
-    keep_md: TRUE
     toc: TRUE
     toc_float: TRUE
     toc_depth: 3
@@ -38,7 +37,10 @@ library("vegan")
 library("vegetarian")
 library("MASS")
 library("spaceMovie")
+library("tidyverse")
+library("plotly")
 ```
+
 ```{r Toy_example, include = FALSE}
 Toy_data <- data.frame(D_plex = c(5, 4, 0), V_cardui = c(6, 2, 2), A_bredowii =  c(0, 0, 3), row.names = c("Donner_Pass", "Sierraville", "Davis"))
 
@@ -87,6 +89,184 @@ These data could be incomplete and are in need of improvement. I am particularly
 * Edit a [Google Doc](https://docs.google.com/spreadsheets/d/1zN0OdNH8btShE3pk09FUaM7Z-UhRg9gZdgxe_IKWkfY/edit?usp=sharing)
 * Submit a PR through [`github`](https://github.com/butterflyology/Star_Wars_musical_ecology) (for those with technical skills).
 * Email me through my [website](https://butterflyology.github.io/)
+
+## General Plots
+
+### All the themes
+
+Let's make a histogram where the total number of appearances each theme makes in the saga is plotted. Hover your cursor over each bar to see what it represents. Try clicking on `compare data on hover` to see all the themes at once. 
+
+```{r plot_all, echo = FALSE, fig.cap = "Plot of all theme appearances", warning = FALSE, message = FALSE, error = FALSE}
+SW_tidy <- SW_data
+SW_tidy <- as.tibble(SW_tidy)
+
+SW_themes_sum <- SW_tidy %>% 
+  gather(key = "Theme") %>%
+  mutate(value = as.integer(value)) %>%
+  group_by(Theme) %>% 
+  summarize(SUM = sum(value)) %>% 
+  arrange(desc(SUM))
+
+all_themes_ggplot <- ggplot(SW_themes_sum, aes(x = reorder(Theme, desc(SUM)), y = SUM)) + 
+geom_histogram (fill = SW_palette("ROTJ", n = 35, type = "continuous"), stat = "identity") + 
+  theme_bw() +
+  xlab("") +
+  ylab("Appearances") +
+  theme(axis.text.x = element_blank())
+
+all_themes_plotly <- ggplotly(all_themes_ggplot)
+plotly_all_themes_str <- plotly_build(all_themes_plotly)
+
+#names(plotly_all_themes_str$x$data[[1]])
+plotly_all_themes_str$x$data[[1]]$text <- "Qui Gon's theme"
+plotly_all_themes_str$x$data[[2]]$text <- "Vader's theme"
+plotly_all_themes_str$x$data[[3]]$text <- "Jedi Steps"
+plotly_all_themes_str$x$data[[4]]$text <- "Droid's theme (TESB)"
+plotly_all_themes_str$x$data[[5]]$text <- "Emperor's theme"
+plotly_all_themes_str$x$data[[6]]$text <- "Separatist Conspiracy theme"
+plotly_all_themes_str$x$data[[7]]$text <- "Luke and Leia's theme"
+plotly_all_themes_str$x$data[[8]]$text <- "March of the Resistance"
+plotly_all_themes_str$x$data[[9]]$text <- "Duel of the Fates"
+plotly_all_themes_str$x$data[[10]]$text <- "Poe's theme"
+plotly_all_themes_str$x$data[[11]]$text <- "Camino"
+plotly_all_themes_str$x$data[[12]]$text <- "Trade Federation"
+plotly_all_themes_str$x$data[[13]]$text <- "Jango's Escape"
+plotly_all_themes_str$x$data[[14]]$text <- "Anakin's theme"
+plotly_all_themes_str$x$data[[15]]$text <- "Kylo's theme #1"
+plotly_all_themes_str$x$data[[16]]$text <- "Droid's theme (ROTJ)"
+plotly_all_themes_str$x$data[[17]]$text <- "Falcon theme"
+plotly_all_themes_str$x$data[[18]]$text <- "Death Star"
+plotly_all_themes_str$x$data[[19]]$text <- "Arena Monsters"
+plotly_all_themes_str$x$data[[20]]$text <- "Leia's theme"
+plotly_all_themes_str$x$data[[21]]$text <- "Battle of the Heroes"
+plotly_all_themes_str$x$data[[22]]$text <- "Grievous' theme"
+plotly_all_themes_str$x$data[[23]]$text <- "Kylo's theme #2"
+plotly_all_themes_str$x$data[[24]]$text <- "Jaba's theme"
+plotly_all_themes_str$x$data[[25]]$text <- "Jar Jar's theme"
+plotly_all_themes_str$x$data[[26]]$text <- "Scherzo for X-Wings"
+plotly_all_themes_str$x$data[[27]]$text <- "Yoda's theme"
+plotly_all_themes_str$x$data[[28]]$text <- "Tusken Slaughter"
+plotly_all_themes_str$x$data[[29]]$text <- "Rey's theme"
+plotly_all_themes_str$x$data[[30]]$text <- "The Force Theme"
+plotly_all_themes_str$x$data[[31]]$text <- "Main Title theme"
+plotly_all_themes_str$x$data[[32]]$text <- "Imperial March"
+plotly_all_themes_str$x$data[[33]]$text <- "Rebel Fanfare"
+plotly_all_themes_str$x$data[[34]]$text <- "Han Solo and the Princess"
+plotly_all_themes_str$x$data[[35]]$text <- "Across the Stars"
+
+plotly_all_themes_str
+```
+
+### Themes by Film
+
+Let's make a plot where each film is represented by a bar and that bar is filled according to the frequency of the themes in that movie. Hover your cursor over a bar to see the theme and number of times it appeared in that film. 
+
+```{r stacked_histo, echo = FALSE, warning = FALSE, message = FALSE, fig.cap = "Themes by film"}
+SW_tidy_2 <- SW_tidy %>% 
+  mutate(Film = as.factor(rownames(SW_data))) %>% 
+  group_by(Film) %>% 
+  gather(key = Theme, value = value, -Film) %>% 
+  mutate(Theme = as.factor(Theme)) %>% 
+  filter(value >= 1) %>% 
+  arrange(Theme)
+
+
+themes_by_film <- ggplot(SW_tidy_2, aes(x = Film, y = value, fill = Theme)) + 
+  geom_col(position = "stack") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  ylab("Count")
+
+themes_film <- ggplotly(themes_by_film)
+themes_film_str <- plotly_build(themes_film)
+
+# names(themes_film_str$x$data[[1]])
+# Need to do this with RegEx instead
+themes_film_str$x$data[[1]]$text[1] <- "Across The Stars- 25"
+themes_film_str$x$data[[1]]$text[2] <- "Across The Stars - 6"
+themes_film_str$x$data[[2]]$text[1] <- "Anakin's theme - 3"
+themes_film_str$x$data[[2]]$text[2] <- "Anakin's theme - 3"
+themes_film_str$x$data[[2]]$text[3] <- "Anakin's theme - 1"
+themes_film_str$x$data[[3]]$text[1] <- "Arena Monsters - 6"
+themes_film_str$x$data[[3]]$text[2] <- "Arena Monsters - 2"
+themes_film_str$x$data[[4]]$text[1] <- "Battle of the Heroes - 8"
+themes_film_str$x$data[[5]]$text[1] <- "Camino - 6"
+themes_film_str$x$data[[6]]$text[1] <- "Death Star - 1"
+themes_film_str$x$data[[6]]$text[2] <- "Death Star - 7"
+themes_film_str$x$data[[7]]$text[1] <- "Droid theme (EV) - 11"
+themes_film_str$x$data[[8]]$text[1] <- "Droid theme (EVI) - 3"
+themes_film_str$x$data[[9]]$text[1] <- "Duel of the Fates - 1"
+themes_film_str$x$data[[9]]$text[2] <- "Duel of the Fates - 1"
+themes_film_str$x$data[[9]]$text[3] <- "Duel of the Fates - 3"
+themes_film_str$x$data[[10]]$text[1] <- "Emperor's theme - 6"
+themes_film_str$x$data[[10]]$text[2] <- "Emperor's theme - 3"
+themes_film_str$x$data[[10]]$text[3] <- "Emperor's theme - 6"
+themes_film_str$x$data[[10]]$text[4] <- "Emperor's theme - 3"
+themes_film_str$x$data[[11]]$text[1] <- "Falcon theme - 8"
+themes_film_str$x$data[[12]]$text[1] <- "Force theme - 11"
+themes_film_str$x$data[[12]]$text[2] <- "Force theme - 8"
+themes_film_str$x$data[[12]]$text[3] <- "Force theme - 20"
+themes_film_str$x$data[[12]]$text[4] <- "Force theme - 18"
+themes_film_str$x$data[[12]]$text[5] <- "Force theme - 14"
+themes_film_str$x$data[[12]]$text[6] <- "Force theme - 19"
+themes_film_str$x$data[[12]]$text[7] <- "Force theme - 13"
+themes_film_str$x$data[[13]]$text[1] <- "Grievous' theme - 3"
+themes_film_str$x$data[[14]]$text[1] <- "Han Solo and the Princess - 19"
+themes_film_str$x$data[[14]]$text[2] <- "Han Solo and the Princess - 9"
+themes_film_str$x$data[[14]]$text[3] <- "Han Solo and the Princess - 3"
+themes_film_str$x$data[[15]]$text[1] <- "Imperial March - 1"
+themes_film_str$x$data[[15]]$text[2] <- "Imperial March - 2"
+themes_film_str$x$data[[15]]$text[3] <- "Imperial March - 13"
+themes_film_str$x$data[[15]]$text[4] <- "Imperial March - 37"
+themes_film_str$x$data[[15]]$text[5] <- "Imperial March - 20"
+themes_film_str$x$data[[15]]$text[6] <- "Imperial March - 2"
+themes_film_str$x$data[[16]]$text[1] <- "Jaba's theme - 1"
+themes_film_str$x$data[[16]]$text[2] <- "Jaba's theme - 2"
+themes_film_str$x$data[[17]]$text[1] <- "Jango's Escape - 1"
+themes_film_str$x$data[[18]]$text[1] <- "Jar Jar's theme - 2"
+themes_film_str$x$data[[19]]$text[1] <- "Jedi Steps - 1"
+themes_film_str$x$data[[20]]$text[1] <- "Kylo's theme #1 - 10"
+themes_film_str$x$data[[21]]$text[1] <- "Kylo's theme #2 - 2"
+themes_film_str$x$data[[22]]$text[1] <- "Leia's theme - 2"
+themes_film_str$x$data[[22]]$text[2] <- "Leia's theme - 8"
+themes_film_str$x$data[[22]]$text[3] <- "Leia's theme - 3"
+themes_film_str$x$data[[22]]$text[4] <- "Leia's theme - 4"
+themes_film_str$x$data[[22]]$text[5] <- "Leia's theme - 4"
+themes_film_str$x$data[[23]]$text[1] <- "Luke and Leia - 1"
+themes_film_str$x$data[[24]]$text[1] <- "Luke and Leia - 5"
+themes_film_str$x$data[[24]]$text[1] <- "Main Title - 6"
+themes_film_str$x$data[[24]]$text[2] <- "Main Title - 3"
+themes_film_str$x$data[[24]]$text[3] <- "Main Title - 4"
+themes_film_str$x$data[[24]]$text[4] <- "Main Title - 17"
+themes_film_str$x$data[[24]]$text[5] <- "Main Title - 28"
+themes_film_str$x$data[[24]]$text[6] <- "Main Title - 18"
+themes_film_str$x$data[[24]]$text[7] <- "Main Title - 13"
+themes_film_str$x$data[[25]]$text[1] <- "March of the Resistance - 5"
+themes_film_str$x$data[[26]]$text[1] <- "Poe's theme - 4"
+themes_film_str$x$data[[27]]$text[1] <- "Qui Gon's theme - 1"
+themes_film_str$x$data[[28]]$text[1] <- "Rebel Fanfare - 3"
+themes_film_str$x$data[[28]]$text[2] <- "Rebel Fanfare - 13"
+themes_film_str$x$data[[28]]$text[3] <- "Rebel Fanfare - 6"
+themes_film_str$x$data[[28]]$text[4] <- "Rebel Fanfare - 9"
+themes_film_str$x$data[[28]]$text[5] <- "Rebel Fanfare - 8"
+themes_film_str$x$data[[29]]$text[1] <- "Rey's theme- 25"
+themes_film_str$x$data[[30]]$text[1] <- "Scherzo for X-Wings - 3"
+themes_film_str$x$data[[31]]$text[1] <- "Separatist Conspiracy - 11"
+themes_film_str$x$data[[32]]$text[1] <- "Trade Federation - 1"
+themes_film_str$x$data[[32]]$text[2] <- "Trade Federation - 2"
+themes_film_str$x$data[[32]]$text[3] <- "Trade Federation - 1"
+themes_film_str$x$data[[33]]$text[1] <- "Tuskan Slaughter - 3"
+themes_film_str$x$data[[34]]$text[1] <- "Vader's theme - 17"
+themes_film_str$x$data[[35]]$text[1] <- "Yoda's theme - 1"
+themes_film_str$x$data[[35]]$text[2] <- "Yoda's theme - 2"
+themes_film_str$x$data[[35]]$text[3] <- "Yoda's theme - 1"
+themes_film_str$x$data[[35]]$text[4] <- "Yoda's theme - 14"
+themes_film_str$x$data[[35]]$text[5] <- "Yoda's theme - 4"
+
+themes_film_str
+```
+
+
 
 ## Analysis
 

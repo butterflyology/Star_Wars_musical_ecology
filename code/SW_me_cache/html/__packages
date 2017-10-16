@@ -12,3 +12,5 @@ readr
 purrr
 dplyr
 MASS
+plotly
+bindrcpp
