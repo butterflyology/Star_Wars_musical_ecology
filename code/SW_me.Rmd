@@ -94,7 +94,7 @@ These data could be incomplete and are in need of improvement. I am particularly
 
 ### All the themes
 
-Let's make a histogram where the total number of appearances each theme makes in the saga is plotted. Hover your cursor over each bar to see what it represents. Try clicking on `compare data on hover` to see all the themes at once. 
+Let's make a histogram where the total number of appearances each theme makes in the saga is plotted. Hover your cursor over each bar to see what it represents.
 
 ```{r plot_all, echo = FALSE, fig.cap = "Plot of all theme appearances", warning = FALSE, message = FALSE, error = FALSE}
 SW_tidy <- SW_data
@@ -159,7 +159,7 @@ plotly_all_themes_str
 
 ### Themes by Film
 
-Let's make a plot where each film is represented by a bar and that bar is filled according to the frequency of the themes in that movie. Hover your cursor over a bar to see the theme and number of times it appeared in that film. 
+Let's make a plot where each film is represented by a bar and that bar is filled according to the frequency of the themes in that movie. Hover your cursor over a bar to see the theme and number of times it appeared in that film. Try clicking on `compare data on hover` to see all the themes at once. 
 
 ```{r stacked_histo, echo = FALSE, warning = FALSE, message = FALSE, fig.cap = "Themes by film"}
 SW_tidy_2 <- SW_tidy %>% 
@@ -172,7 +172,7 @@ SW_tidy_2 <- SW_tidy %>%
 
 
 themes_by_film <- ggplot(SW_tidy_2, aes(x = Film, y = value, fill = Theme)) + 
-  geom_col(position = "stack") +
+  geom_bar(stat = "identity", position = "stack") +
   theme_bw() +
   theme(legend.position = "none") +
   ylab("Count")
@@ -262,6 +262,12 @@ themes_film_str$x$data[[35]]$text[2] <- "Yoda's theme - 2"
 themes_film_str$x$data[[35]]$text[3] <- "Yoda's theme - 1"
 themes_film_str$x$data[[35]]$text[4] <- "Yoda's theme - 14"
 themes_film_str$x$data[[35]]$text[5] <- "Yoda's theme - 4"
+
+# themes_film_str$x$data[[35]]$marker$color
+for(i in 1:35){
+  coloring <- SW_palette("ROTS", type = "continuous", n = 35)
+  themes_film_str$x$data[[i]]$marker$color <- coloring[i]
+}
 
 themes_film_str
 ```
