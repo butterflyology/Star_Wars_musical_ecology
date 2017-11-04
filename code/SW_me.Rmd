@@ -74,17 +74,19 @@ To reverse engineer the theme tracker I listened back through all of the *Star W
 
 This was especially helpful when going the **AOTC**, which had a lot of music edits.
 
+I then attempted my own impression of David W. Collins and *Star Wars Oxygen* and went through **Rogue One** three times and counted each instance of what I thought was a "theme." I am almost certainly wrong because I am not a trained musician and I might have considered themes to be seperate when they were they were actually part of the same leitmotifs.
+
 The data I ended up with, and which is used here had:
 
-* **7** rows - one for each film ("ecosystem")
-* **35** columns - one for each theme ("species")
+* **8** rows - one for each film ("ecosystem")
+* **48** columns - one for each theme ("species")
 
 ```{r load_data, include = FALSE}
 SW_data <- read.csv("../data/DWC_theme_tracker.csv", header = TRUE, row.names = 1)
 dim(SW_data)
 ```
 
-These data could be incomplete and are in need of improvement. I am particularly concerned by the lack of "rare" themes in the data set. Rare things are important in ecology. There are two ways you could contribute:
+These data could be wrong or incomplete and are in need of improvement. I am particularly concerned by the lack of "rare" themes in the data set. Rare things are important in ecology. There are two ways you could contribute:
 
 * Edit a [Google Doc](https://docs.google.com/spreadsheets/d/1zN0OdNH8btShE3pk09FUaM7Z-UhRg9gZdgxe_IKWkfY/edit?usp=sharing)
 * Submit a PR through [`github`](https://github.com/butterflyology/Star_Wars_musical_ecology) (for those with technical skills).
@@ -320,14 +322,18 @@ Now we'll make a tree depicting the relationships between the seven films of the
 ```{r SW_clust, include = FALSE}
 SW_dist <- vegdist(SW_data, method = "jaccard", diag = FALSE, na.rm = TRUE)
 
-SW_clust <- hclust(SW_dist, method = "ward.D")
+SW_clust <- hclust(SW_dist, method = "complete")
 ```
 
-A prediction on the clustering analysis. The three original trilogy films will cluster together and the pre-quels will cluster together. I think that TFA will be more similar, musically, to the original trilogy than the pre-quels. 
+A prediction on the clustering analysis. The three *original trilogy* films will cluster together seperate from the *prequel trilogy* films, which will also cluster together. I think that **The Force Awakens**  and **Rogue One** will be more similar, musically, to the *original trilogy* than the prequels. 
+
+Adding the data from **Rogue One** allows us to see where that film lies in relation to the others. Michael Giacchino rooted the music for **Rogue One** firmly within *Star Wars*. He used parts from **A New Hope** to form the themes used in **Rogue One**, for example Jyn Erso's Suite was based on "the Message," which plays in the background with Oni Wan says "You must learn the ways of the Force...." It is also the only *Star Wars* film to share "Darth Vader's" theme with *A New Hope.*
 
 ```{r SW_plot, echo = FALSE, fig.cap = "Clustering of the Star Wars films based on the their musical theme counts."}
 plot(SW_clust, main = "", xlab = "", sub = "")
 ```
+
+This plot shows *Rogue One* as more musically related to the original trilogy, which makes a lot of sense to me. However, the themes shared between **A Hew Hope** & **The Forece Awakens** and **The Empire Strikes Back** & **Return of the Jedi** create similarities that are too strong for **Rogue One* to break. 
 
 ```{r DW_d, include = FALSE}
 # A simple function to calculate a range of q values for a, b, and g diversity
@@ -357,8 +363,11 @@ ROnea <- D.iter.q(data = SW_data[8, ], level = "alpha", q = 5)
 Here we count the number of different themes and consider how many different themes there are if we weight "rarity." 
 
 ```{r alpha_plot, echo = FALSE, fig.cap = "Plot of the effective number of themes by Star Wars film"}
-plot(x = seq(from = 0, to = 5, length.out = 4), y = seq(from = 0, to = 20, length.out = 4), xaxt = "n", type = "n", ylab = expression(paste(italic(alpha))), xlab = expression(paste(italic("q"))), las = 1, main = "")
+plot(x = seq(from = 0, to = 5, length.out = 4), y = seq(from = 0, to = 20, length.out = 4), xaxt = "n", type = "n", ylab = "", xlab = "", las = 1, main = "")
 axis(1, at = c(0, 1, 2, 3, 4, 5))
+mtext(expression(paste(italic(alpha))), side = 2, padj = -2.5, srt = 0, cex = 2)
+mtext(expression(paste(italic("q"))), 1, padj = 2.5, cex = 1.5)
+
 
 # EI
 points(y = EIa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("TPM")[1])
@@ -397,7 +406,7 @@ legend("topright", bty = "n", legend = c("E I", "E II", "E III", "E IV", "E V", 
 
 To read this plot we look at the y (vertical) axis to see the number of themes. Along the x (horizontal) axis we have the different weights we place on "rarity." A weight of 0 means that all themes are equal and it represents the actual number of themes present in each film. As we move right along the x axis we decrease the effect that a rarely occurring theme has on the y axis value. All the way to the right we hardly consider the effect that rare themes have on the effective number of themes. 
 
-Note that Episode IV has the fewest number of themes. This is likely a result of incomplete data in the spreadsheet. E III has the most themes in our data set. One thing that appears evident from this analysis, is that all films have ~6 themes frequently used throughout. 
+Note that **A New Hope** has the fewest number of themes (when *q* = 0). This is likely a result of incomplete data in the spreadsheet or could be reflective of the fact that it is the first films. **Rogue One** actually have the highest number of themes, but from the John Williams scored films **Revenge of the Sith** has the most themes in our data set. One thing that appears evident from this analysis, is that all films have ~6 themes frequently used throughout. 
 
 One last note of geekery. The colors from that plot were made with an `R` package called [`spaceMovie`](https://github.com/butterflyology/spaceMovie) that uses colors from the *Star Wars* films.
 
@@ -406,22 +415,27 @@ One last note of geekery. The colors from that plot were made with an `R` packag
 Lastly, I want to employ a method called **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in ordination space. This doesn't mean much except to say that similar things should be closer together than dissimilar things. 
 
 ```{r nmds, include = FALSE}
+series <- c("Prequel", "Prequel", "Prequel", "Original Trilolgy", "Original Trilolgy", "Original Trilolgy", "New Trilogy", "Story")
 SW_nmds <- metaMDS(SW_dist, trace = FALSE)
 stressplot(SW_nmds, SW_dist)
 ```
 
 ```{r nmds_plot, echo = FALSE, warning = FALSE, fig.cap = "NMDS Ordination plot of the 7 Star Wars films."}
-plot(SW_nmds, type = "t", las = 1, cex = 1.2)
+plot(SW_nmds, type = "t", las = 1, cex = 1.2, xlab = "Axis 1", ylab = "Axis 2", xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.4))
+ordiellipse(SW_nmds, series, col = c(alpha(SW_palette("TPM")[2], 0.3), c(alpha(SW_palette("ANH")[4], 0.3))), kind = "ehull", lwd = 3)
 ```
 
-Here we see that the original trilogy films are closer to each other than they are to other films, and TFA is still closest to the original trilogy. The prequels are spread out a bit but one could easily draw a circle around those films without including any of the other films. *The Force Awakens* is out there by itself a bit but still closest to the original trilogy.
+Think about which films you could draw an ellipse around without including any other films. We could draw a circle around the prequels that only contains the prequels. This suggests that the prequel films are closer to each other than they are to other films. It also appears that **The Force Awakens** is closest to the original trilogy. These findings are consistant with the clustering plot we saw earlier. What is really cool about this plot is we see just how far away **Rogue One** is from the rest of the films. 
+
+
 
 ## Conclusions
 
 I have three big take aways about the music of the *Star Wars* films from this exercise:
 
-1. The original trilogy films are most similar to each other.
-1. The prequel films are most similar to each other.
-1. *The Force Awakens* is more similar to the original trilogy than to the prequels.
+1. The *original trilogy* films are most similar to each other.
+1. The *prequel trilogy* films are most similar to each other.
+1. **The Force Awakens** is more similar to the original trilogy than to the prequels.
+1. **Rogue One** is its own thing.
 
-These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that *The Force Awakens* is building off of the original trilogy, which is the most recent one relative to *TFA*. 
+These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that *The Force Awakens* is building off of the original trilogy, which makes chronological sense. Lastly, Michael Giacchino used themes found in **A New Hope** to ground **Rogue One** in the *Star Wars* musical universe.
