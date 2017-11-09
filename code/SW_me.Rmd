@@ -4,7 +4,6 @@ author: "Chris Hamm"
 date: "`r format(Sys.time(), '%Y-%m-%d')`"
 output: 
   html_document:
-    keep_md: TRUE
     toc: TRUE
     toc_float: TRUE
     toc_depth: 3
@@ -17,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", cache = TRUE)
 ## Introduction
 
 ### Star Wars Oxygen
-  I love [*Star Wars.*](http://www.starwars.com/) I love the story telling and fantasy, but I especially love the music. John Williams is amazing. There was a podcast out there called [*Star Wars Oxygen*](http://www.rebelforceradio.com/star-wars-oxygen/) that covered the music of *Star Wars* and it was one of my favorite podcasts of all time. [Jimmy Mac](http://www.rebelforceradio.com/jimmy-mac/) hosted while voice actor, musicician, and composer [David W. Collins](http://starwars.wikia.com/wiki/David_W._Collins) broke down the scores for the films we know and love in a way that gave me a new appreciation for the films. I say there *was a podcast* because the podcast went dark following the release of Rogue One. After 38 wonderful volumes the podcast just wasn't updated any more and we the fans have not heard anything about why they stopped producing the show. 
+  I love [*Star Wars.*](http://www.starwars.com/) I love the story telling and fantasy, but I especially love the music. John Williams is amazing. There was a podcast out there called [*Star Wars Oxygen*](http://www.rebelforceradio.com/star-wars-oxygen/) that covered the music of *Star Wars* and it was one of my favorite podcasts of all time. [Jimmy Mac](http://www.rebelforceradio.com/jimmy-mac/) hosted while voice actor, musician, and composer [David W. Collins](http://starwars.wikia.com/wiki/David_W._Collins) broke down the scores for the films we know and love in a way that gave me a new appreciation for the films. I say there *was a podcast* because the podcast went dark following the release of **Rogue One**. After 38 wonderful volumes the podcast just wasn't updated any more and we the fans have not heard anything about why they stopped producing the show. 
 
 ### Species diversity
   I also love statistics and ecology, which is the study of how organisms relate to each other and their environments. One exciting area of research deals with **diversity.** We can use statistics to figure out how many things live in a certain area and compare how different habitats are similar or different to one another. In order to conduct an analysis like this you need a "count matrix," which has **habitats** on rows and **species** in columns. The cells are filled in with counts of how many of each **species** is found in each habitat. An example of a count matrix could look like this:
@@ -38,7 +37,10 @@ library("vegan")
 library("vegetarian")
 library("MASS")
 library("spaceMovie")
+library("tidyverse")
+library("plotly")
 ```
+
 ```{r Toy_example, include = FALSE}
 Toy_data <- data.frame(D_plex = c(5, 4, 0), V_cardui = c(6, 2, 2), A_bredowii =  c(0, 0, 3), row.names = c("Donner_Pass", "Sierraville", "Davis"))
 
@@ -60,33 +62,260 @@ During the *Star Wars Oxygen* podcast, David W. Collins began what he called his
 
 David W. Collins made a count matrix. 
 
+We can use statistics on count matrices. 
+
 We can apply statistics to *Star Wars*!!!! Oh happy day!!!
 
 ## The data
 
-To reverse enginerer the theme tracker I listened back through all of the *Star Wars Oxygen* episode with pencil and paper ready. I made note of how often a theme was played during a particular film every time Mr. Collins mentioned it. In some instances, I had to get a bit of help and I read the breakdowns and threads from these sites:
+To reverse engineer the theme tracker I listened back through all of the *Star Wars Oxygen* episode with pencil and paper ready. I made note of how often a theme was played during a particular film every time Mr. Collins mentioned it. In some instances, I had to get a bit of help and I read the breakdowns and threads from these sites:
 
 * [jwfan.com](http://www.jwfan.com/)
 * [*Star Wars* wikia](http://starwars.wikia.com/wiki/Binary_Sunset)
 * [TheForce.net](http://boards.theforce.net/threads/force-theme-archive-just-how-many-tracks-is-the-force-theme-in-anyways.8458343/)
 
-This was especially helpful when going the **AOTC**, which had a lot of music edits.
+This was especially helpful when going through **Attack of the Clones**, which had a lot of music edits.
 
-The data I ended up with, and which is used here had:
+I then attempted my own impression of David W. Collins and *Star Wars Oxygen* and went through **Rogue One** three times and counted each instance of what I thought was a "theme." I am almost certainly wrong because I am not a trained musician and I might have considered themes to be separate when they were they were actually part of the same leitmotifs.
 
-* **7** rows - one for each film ("ecosystem")
-* **35** columns - one for each theme ("species")
+The data I ended up with, and which are used here had:
+
+* **8** rows - one for each film ("ecosystem")
+* **48** columns - one for each theme ("species")
 
 ```{r load_data, include = FALSE}
 SW_data <- read.csv("../data/DWC_theme_tracker.csv", header = TRUE, row.names = 1)
 dim(SW_data)
 ```
 
-These data could be incomplete and are in need of improvement. I am particularly concerned by the lack of "rare" themes in the data set. Rare things are important in ecology. There are two ways you could contribute:
+These data could be wrong or incomplete and are in need of improvement. I am particularly concerned by the lack of "rare" themes in the data set. Rare things are important in ecology. There are a few ways you could contribute:
 
 * Edit a [Google Doc](https://docs.google.com/spreadsheets/d/1zN0OdNH8btShE3pk09FUaM7Z-UhRg9gZdgxe_IKWkfY/edit?usp=sharing)
-* Submit a PR through [`github`](https://github.com/butterflyology/Star_Wars_musical_ecology) (for those with technical skills).
-* Email me through my [website](https://butterflyology.github.io/)
+* Submit a pull request through [`github`](https://github.com/butterflyology/Star_Wars_musical_ecology) (for those with technical skills).
+* Email me through my [website](https://butterflyology.github.io/).
+* Contact me on twitter: [\@butterflyology](https://twitter.com/butterflyology
+)
+
+## General Plots
+
+### All the themes
+
+Let's make a histogram where the total number of appearances each theme makes in the saga is plotted. Hover your cursor over each bar to see what it represents.
+
+```{r plot_all, echo = FALSE, fig.cap = "Plot of all theme appearances", warning = FALSE, message = FALSE, error = FALSE}
+#SW_tidy <- SW_data
+SW_tidy <- as.tibble(SW_data)
+
+SW_themes_sum <- SW_tidy %>% 
+  gather(key = "Theme") %>%
+  mutate(value = as.integer(value)) %>%
+  group_by(Theme) %>% 
+  summarize(SUM = sum(value)) %>% 
+  arrange(desc(SUM))
+
+
+all_themes_ggplot <- ggplot(SW_themes_sum, aes(x = reorder(Theme, desc(SUM)), y = SUM)) + 
+geom_histogram (fill = SW_palette("ROTJ", n = 48, type = "continuous"), stat = "identity") + 
+  theme_bw() +
+  xlab("") +
+  ylab("Appearances") +
+  theme(axis.text.x = element_blank())
+
+all_themes_plotly <- ggplotly(all_themes_ggplot)
+plotly_all_themes_str <- plotly_build(all_themes_plotly)
+
+#names(plotly_all_themes_str$x$data[[1]])
+plotly_all_themes_str$x$data[[1]]$text <- "Qui Gon's theme - 1"
+plotly_all_themes_str$x$data[[2]]$text <- "Death Star - 11"
+plotly_all_themes_str$x$data[[3]]$text <- "Jedi Steps - 1"
+plotly_all_themes_str$x$data[[4]]$text <- "The Rebels - 13"
+plotly_all_themes_str$x$data[[5]]$text <- "Droid's theme (TESB) - 11"
+plotly_all_themes_str$x$data[[6]]$text <- "Jango's Escape - 1"
+plotly_all_themes_str$x$data[[7]]$text <- "Separatist Conspiracy theme - 11"
+plotly_all_themes_str$x$data[[8]]$text <- "Kylo's theme #1 - 10"
+plotly_all_themes_str$x$data[[9]]$text <- "Battle Preparations - 4"
+plotly_all_themes_str$x$data[[10]]$text <- "March of the Resistance - 5"
+plotly_all_themes_str$x$data[[11]]$text <- "Duel of the Fates - 4"
+plotly_all_themes_str$x$data[[12]]$text <- "The Master Switch - 4"
+plotly_all_themes_str$x$data[[13]]$text <- "The Message - 4"
+plotly_all_themes_str$x$data[[14]]$text <- "Poe's theme - 4"
+plotly_all_themes_str$x$data[[15]]$text <- "Emperor's theme - 15"
+plotly_all_themes_str$x$data[[16]]$text <- "Trade Federation - 4"
+plotly_all_themes_str$x$data[[17]]$text <- "Luke and Leia's theme - 6"
+plotly_all_themes_str$x$data[[18]]$text <- "Camino - 6"
+plotly_all_themes_str$x$data[[19]]$text <- "Droid's theme (ROTJ) - 3"
+plotly_all_themes_str$x$data[[20]]$text <- "Troopers moving - 2"
+plotly_all_themes_str$x$data[[21]]$text <- "Scarif Battle - 10"
+plotly_all_themes_str$x$data[[22]]$text <- "Guardians of the Whills - 7"
+plotly_all_themes_str$x$data[[23]]$text <- "Anakin's theme - 7"
+plotly_all_themes_str$x$data[[24]]$text <- "Grievous' theme - 3"
+plotly_all_themes_str$x$data[[25]]$text <- "Jedha / Saw - 9"
+plotly_all_themes_str$x$data[[26]]$text <- "Falcon theme - 8"
+plotly_all_themes_str$x$data[[27]]$text <- "Battle of the Heroes- 8"
+plotly_all_themes_str$x$data[[28]]$text <- "Rogue One Theme - 2"
+plotly_all_themes_str$x$data[[29]]$text <- "Vader's theme - 19"
+plotly_all_themes_str$x$data[[30]]$text <- "Arena Monsters - 8"
+plotly_all_themes_str$x$data[[31]]$text <- "Hope - 3"
+plotly_all_themes_str$x$data[[32]]$text <- "Jaba's theme - 3"
+plotly_all_themes_str$x$data[[33]]$text <- "Kylo's theme #2 - 2"
+plotly_all_themes_str$x$data[[34]]$text <- "Rebel Action Theme - 3"
+plotly_all_themes_str$x$data[[35]]$text <- "Krennic's Theme - 20"
+plotly_all_themes_str$x$data[[36]]$text <- "Scherzo for X-Wings - 3"
+plotly_all_themes_str$x$data[[37]]$text <- "Jar Jar's theme - 2"
+plotly_all_themes_str$x$data[[38]]$text <- "Tusken Slaughter - 3"
+plotly_all_themes_str$x$data[[39]]$text <- "Leia's theme - 21"
+plotly_all_themes_str$x$data[[40]]$text <- "Yoda's theme - 22"
+plotly_all_themes_str$x$data[[41]]$text <- "The Force Theme - 110"
+plotly_all_themes_str$x$data[[42]]$text <- "Main Title - 91"
+plotly_all_themes_str$x$data[[43]]$text <- "Imperial March - 78"
+plotly_all_themes_str$x$data[[44]]$text <- "Rebel Fanfare - 45"
+plotly_all_themes_str$x$data[[45]]$text <- "Across the Stars - 31"
+plotly_all_themes_str$x$data[[46]]$text <- "Jyn's Theme - 23"
+plotly_all_themes_str$x$data[[47]]$text <- "Han Solo and the Princess - 31"
+plotly_all_themes_str$x$data[[48]]$text <- "Rey's theme - 25"
+
+plotly_all_themes_str
+```
+
+### Themes by Film
+
+Let's make a plot where each film is represented by a bar and that bar is filled according to the frequency of the themes in that movie. Hover your cursor over a bar to see the theme and number of times it appeared in that film. Try clicking on `compare data on hover` to see all the themes at once. 
+
+```{r stacked_histo, echo = FALSE, warning = FALSE, message = FALSE, fig.cap = "Themes by film"}
+SW_tidy_2 <- SW_tidy %>% 
+  mutate(Film = as.factor(rownames(SW_data))) %>% 
+  group_by(Film) %>% 
+  gather(key = Theme, value = value, -Film) %>% 
+  mutate(Theme = as.factor(Theme)) %>% 
+  filter(value >= 1) %>% 
+  arrange(Theme)
+
+
+themes_by_film <- ggplot(SW_tidy_2, aes(x = Film, y = value, fill = Theme)) + 
+  geom_bar(stat = "identity", position = "stack") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  ylab("Count")
+
+themes_film <- ggplotly(themes_by_film)
+themes_film_str <- plotly_build(themes_film)
+
+# names(themes_film_str$x$data[[1]])
+# Need to do this with RegEx instead
+themes_film_str$x$data[[1]]$text[1] <- "Across The Stars- 25"
+themes_film_str$x$data[[1]]$text[2] <- "Across The Stars - 6"
+themes_film_str$x$data[[2]]$text[1] <- "Anakin's theme - 3"
+themes_film_str$x$data[[2]]$text[2] <- "Anakin's theme - 3"
+themes_film_str$x$data[[2]]$text[3] <- "Anakin's theme - 1"
+themes_film_str$x$data[[3]]$text[1] <- "Arena Monsters - 6"
+themes_film_str$x$data[[3]]$text[2] <- "Arena Monsters - 2"
+themes_film_str$x$data[[4]]$text[1] <- "Battle of the Heroes - 8"
+# changes here
+themes_film_str$x$data[[5]]$text[1] <- "Battle Preparations - 4"
+themes_film_str$x$data[[6]]$text[1] <- "Camino - 6"
+themes_film_str$x$data[[7]]$text[1] <- "Death Star - 1"
+themes_film_str$x$data[[7]]$text[2] <- "Death Star - 7"
+themes_film_str$x$data[[7]]$text[3] <- "Death Star - 3"
+themes_film_str$x$data[[8]]$text[1] <- "Droid theme (EV) - 11"
+themes_film_str$x$data[[9]]$text[1] <- "Droid theme (EVI) - 3"
+themes_film_str$x$data[[10]]$text[1] <- "Duel of the Fates - 1"
+themes_film_str$x$data[[10]]$text[2] <- "Duel of the Fates - 1"
+themes_film_str$x$data[[10]]$text[3] <- "Duel of the Fates - 3"
+themes_film_str$x$data[[11]]$text[1] <- "Emperor's theme - 6"
+themes_film_str$x$data[[11]]$text[2] <- "Emperor's theme - 3"
+themes_film_str$x$data[[11]]$text[3] <- "Emperor's theme - 6"
+themes_film_str$x$data[[11]]$text[4] <- "Emperor's theme - 3"
+themes_film_str$x$data[[12]]$text[1] <- "Falcon theme - 8"
+themes_film_str$x$data[[13]]$text[1] <- "Force theme - 11"
+themes_film_str$x$data[[13]]$text[2] <- "Force theme - 8"
+themes_film_str$x$data[[13]]$text[3] <- "Force theme - 20"
+themes_film_str$x$data[[13]]$text[4] <- "Force theme - 18"
+themes_film_str$x$data[[13]]$text[5] <- "Force theme - 14"
+themes_film_str$x$data[[13]]$text[6] <- "Force theme - 19"
+themes_film_str$x$data[[13]]$text[7] <- "Force theme - 13"
+themes_film_str$x$data[[13]]$text[8]<- "Force theme - 7"
+themes_film_str$x$data[[14]]$text[1] <- "Grievous' theme - 3"
+themes_film_str$x$data[[15]]$text[1] <- "Guardians of the Whills - 7"
+themes_film_str$x$data[[16]]$text[1] <- "Han Solo and the Princess - 19"
+themes_film_str$x$data[[16]]$text[2] <- "Han Solo and the Princess - 9"
+themes_film_str$x$data[[16]]$text[3] <- "Han Solo and the Princess - 3"
+themes_film_str$x$data[[17]]$text[1] <- "Hope - 3"
+themes_film_str$x$data[[18]]$text[1] <- "Imperial March - 1"
+themes_film_str$x$data[[18]]$text[2] <- "Imperial March - 2"
+themes_film_str$x$data[[18]]$text[3] <- "Imperial March - 13"
+themes_film_str$x$data[[18]]$text[4] <- "Imperial March - 37"
+themes_film_str$x$data[[18]]$text[5] <- "Imperial March - 20"
+themes_film_str$x$data[[18]]$text[6] <- "Imperial March - 2"
+themes_film_str$x$data[[19]]$text[1] <- "Jaba's theme - 1"
+themes_film_str$x$data[[19]]$text[2] <- "Jaba's theme - 2"
+themes_film_str$x$data[[20]]$text[1] <- "Jango's Escape - 1"
+themes_film_str$x$data[[21]]$text[1] <- "Jar Jar's theme - 2"
+themes_film_str$x$data[[22]]$text[1] <- "Jedha - Saw - 9"
+themes_film_str$x$data[[23]]$text[1] <- "Jedi Steps - 1"
+themes_film_str$x$data[[24]]$text[1] <- "Jyn's theme - 23"
+themes_film_str$x$data[[25]]$text[1] <- "Krennic's theme - 20"
+themes_film_str$x$data[[26]]$text[1] <- "Kylo's theme #1 - 10"
+themes_film_str$x$data[[27]]$text[1] <- "Kylo's theme #2 - 2"
+themes_film_str$x$data[[28]]$text[1] <- "Leia's theme - 2"
+themes_film_str$x$data[[28]]$text[2] <- "Leia's theme - 8"
+themes_film_str$x$data[[28]]$text[3] <- "Leia's theme - 3"
+themes_film_str$x$data[[28]]$text[4] <- "Leia's theme - 4"
+themes_film_str$x$data[[28]]$text[5] <- "Leia's theme - 4"
+themes_film_str$x$data[[29]]$text[1] <- "Luke and Leia - 1"
+themes_film_str$x$data[[29]]$text[1] <- "Luke and Leia - 5"
+themes_film_str$x$data[[30]]$text[1] <- "Main Title - 6"
+themes_film_str$x$data[[30]]$text[2] <- "Main Title - 3"
+themes_film_str$x$data[[30]]$text[3] <- "Main Title - 4"
+themes_film_str$x$data[[30]]$text[4] <- "Main Title - 17"
+themes_film_str$x$data[[30]]$text[5] <- "Main Title - 28"
+themes_film_str$x$data[[30]]$text[6] <- "Main Title - 18"
+themes_film_str$x$data[[30]]$text[7] <- "Main Title - 13"
+themes_film_str$x$data[[30]]$text[8] <- "Main Title - 2"
+themes_film_str$x$data[[31]]$text[1] <- "March of the Resistance - 5"
+themes_film_str$x$data[[32]]$text[1] <- "Master Switch - 4"
+themes_film_str$x$data[[33]]$text[1] <- "Poe's theme - 4"
+themes_film_str$x$data[[34]]$text[1] <- "Qui Gon's theme - 1"
+themes_film_str$x$data[[35]]$text[1] <- "Rebel Action - 3"
+themes_film_str$x$data[[36]]$text[1] <- "Rebel Fanfare - 3"
+themes_film_str$x$data[[36]]$text[2] <- "Rebel Fanfare - 13"
+themes_film_str$x$data[[36]]$text[3] <- "Rebel Fanfare - 6"
+themes_film_str$x$data[[36]]$text[4] <- "Rebel Fanfare - 9"
+themes_film_str$x$data[[36]]$text[5] <- "Rebel Fanfare - 8"
+themes_film_str$x$data[[36]]$text[6] <- "Rebel Fanfare - 6"
+themes_film_str$x$data[[37]]$text[1] <- "Rey's theme- 25"
+themes_film_str$x$data[[38]]$text[1] <- "Rogue theme - 2"
+themes_film_str$x$data[[39]]$text[1] <- "Scarif battle - 10"
+themes_film_str$x$data[[40]]$text[1] <- "Scherzo for X-Wings - 3"
+themes_film_str$x$data[[41]]$text[1] <- "Separatist Conspiracy - 11"
+themes_film_str$x$data[[42]]$text[1] <- "The Message - 2"
+themes_film_str$x$data[[42]]$text[2] <- "The Message - 2"
+themes_film_str$x$data[[43]]$text[1] <- "The Rebels - 13"
+themes_film_str$x$data[[44]]$text[1] <- "Trade Federation - 1"
+themes_film_str$x$data[[44]]$text[2] <- "Trade Federation - 2"
+themes_film_str$x$data[[44]]$text[3] <- "Trade Federation - 1"
+themes_film_str$x$data[[45]]$text[1] <- "Troopers moving - 1"
+themes_film_str$x$data[[45]]$text[2] <- "Troopers moving - 1"
+themes_film_str$x$data[[46]]$text[1] <- "Tuskan Slaughter - 3"
+themes_film_str$x$data[[47]]$text[1] <- "Vader's theme - 17"
+themes_film_str$x$data[[47]]$text[2] <- "Vader's theme - 2"
+themes_film_str$x$data[[48]]$text[1] <- "Yoda's theme - 1"
+themes_film_str$x$data[[48]]$text[2] <- "Yoda's theme - 2"
+themes_film_str$x$data[[48]]$text[3] <- "Yoda's theme - 1"
+themes_film_str$x$data[[48]]$text[4] <- "Yoda's theme - 14"
+themes_film_str$x$data[[48]]$text[5] <- "Yoda's theme - 4"
+
+
+
+# themes_film_str$x$data[[35]]$marker$color
+for(i in 1:48){
+  coloring <- SW_palette("ROTS", type = "continuous", n = 48)
+  themes_film_str$x$data[[i]]$marker$color <- coloring[i]
+}
+
+themes_film_str
+```
+
+
 
 ## Analysis
 
@@ -97,14 +326,18 @@ Now we'll make a tree depicting the relationships between the seven films of the
 ```{r SW_clust, include = FALSE}
 SW_dist <- vegdist(SW_data, method = "jaccard", diag = FALSE, na.rm = TRUE)
 
-SW_clust <- hclust(SW_dist, method = "ward.D")
+SW_clust <- hclust(SW_dist, method = "complete")
 ```
 
-A prediction on the clustering analysis. The three original trilogy films will cluster together and the pre-quels will cluster together. I think that TFA will be more similar, musically, to the original trilogy than the pre-quels. 
+A prediction on the clustering analysis. The three *original trilogy* films will cluster together separate from the *prequel trilogy* films, which will also cluster together. I think that **The Force Awakens**  and **Rogue One** will be more similar, musically, to the *original trilogy* than the prequels. 
+
+Adding the data from **Rogue One** allows us to see where that film lies in relation to the others. Michael Giacchino rooted the music for **Rogue One** firmly within *Star Wars*. He used parts from **A New Hope** to form the themes used in **Rogue One**, for example Jyn Erso's Suite was based on "the Message," which plays in the background with Obi Wan says "You must learn the ways of the Force...." It is also the only *Star Wars* film to share "Darth Vader's" theme with *A New Hope.*
 
 ```{r SW_plot, echo = FALSE, fig.cap = "Clustering of the Star Wars films based on the their musical theme counts."}
 plot(SW_clust, main = "", xlab = "", sub = "")
 ```
+
+This plot shows **Rogue One** as more musically related to the original trilogy, which makes a lot of sense to me. However, the themes shared between **A Hew Hope** & **The Forece Awakens** and **The Empire Strikes Back** & **Return of the Jedi** create similarities that are too strong for **Rogue One** to break. 
 
 ```{r DW_d, include = FALSE}
 # A simple function to calculate a range of q values for a, b, and g diversity
@@ -125,6 +358,7 @@ EIVa <- D.iter.q(data = SW_data[4, ], level = "alpha", q = 5)
 EVa <- D.iter.q(data = SW_data[5, ], level = "alpha", q = 5)
 EVIa <- D.iter.q(data = SW_data[6, ], level = "alpha", q = 5)
 EVIIa <- D.iter.q(data = SW_data[7, ], level = "alpha", q = 5)
+ROnea <- D.iter.q(data = SW_data[8, ], level = "alpha", q = 5)
 ```
 
 
@@ -133,8 +367,11 @@ EVIIa <- D.iter.q(data = SW_data[7, ], level = "alpha", q = 5)
 Here we count the number of different themes and consider how many different themes there are if we weight "rarity." 
 
 ```{r alpha_plot, echo = FALSE, fig.cap = "Plot of the effective number of themes by Star Wars film"}
-plot(x = seq(from = 0, to = 5, length.out = 4), y = seq(from = 0, to = 16, length.out = 4), xaxt = "n", type = "n", ylab = expression(paste(italic(alpha))), las = 1, xlab = "", main = "")
+plot(x = seq(from = 0, to = 5, length.out = 4), y = seq(from = 0, to = 20, length.out = 4), xaxt = "n", type = "n", ylab = "", xlab = "", las = 1, main = "")
 axis(1, at = c(0, 1, 2, 3, 4, 5))
+mtext(expression(paste(italic(alpha))), side = 2, padj = -2.5, srt = 0, cex = 2)
+mtext(expression(paste(italic("q"))), 1, padj = 2.5, cex = 1.5)
+
 
 # EI
 points(y = EIa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("TPM")[1])
@@ -164,36 +401,45 @@ lines(y = EVIa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("R
 points(y = EVIIa, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("TFA")[4])
 lines(y = EVIIa, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("TFA")[4])
 
-legend("topright", bty = "n", legend = c("E I", "E II", "E III", "E IV", "E V", "E VI", "E VII"), pch = 19, col = c(SW_palette("TPM")[1], SW_palette("AOTC")[2], SW_palette("ROTS")[6], SW_palette("ANH")[4], SW_palette("TESB")[5], SW_palette("ROTJ")[5], SW_palette("TFA")[4]))
+#ROne
+points(y = ROnea, x = seq(0, 5), pch = 19, cex = 1, col = SW_palette("Inquisitor")[1])
+lines(y = ROnea, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("Inquisitor")[1])
+
+legend("topright", bty = "n", legend = c("E I", "E II", "E III", "E IV", "E V", "E VI", "E VII", "ROne"), pch = 19, col = c(SW_palette("TPM")[1], SW_palette("AOTC")[2], SW_palette("ROTS")[6], SW_palette("ANH")[4], SW_palette("TESB")[5], SW_palette("ROTJ")[5], SW_palette("TFA")[4], SW_palette("Inquisitor")[1]))
 ```
 
-To read this plot we look at the y (vertical) axis to see the number of themes. Along the x (horizontal) axis we have the different weights we place on "rarity." A weight of 0 means that all themes are equal and it represents the actual number of themes present in each film. As we move right along the x axis we decrease the effect that a rarely occuring theme has on the y axis value. All the way to the right we hardly consider the effect that rare themes have on the effective number of themes. 
+To read this plot we look at the y (vertical) axis to see the number of themes. Along the x (horizontal) axis we have the different weights we place on "rarity." A weight of 0 means that all themes are equal and it represents the actual number of themes present in each film. As we move right along the x axis we decrease the effect that a rarely occurring theme has on the y axis value. All the way to the right we hardly consider the effect that rare themes have on the effective number of themes. 
 
-Note that Episode IV has the fewest number of themes. This is likely a result of incomplete data in the spreadsheet. E III has the most themes in our data set. One thing that appears evident from this analysis, is that all films have ~6 themes frequently used throughout. 
+Note that **A New Hope** has the fewest number of themes (when *q* = 0). This is likely a result of incomplete data in the spreadsheet or could be reflective of the fact that it is the first films. **Rogue One** actually have the highest number of themes, but from the John Williams scored films **Revenge of the Sith** has the most themes in our data set. One thing that appears evident from this analysis, is that all films have ~6 themes frequently used throughout. 
 
-One last note of geekery. The colors from that plot were made with an `R` pacakge called [`spaceMovie`](https://github.com/butterflyology/spaceMovie) that uses colors from the *Star Wars* films.
+One last note of geekery. The colors from that plot were made with an `R` package called [`spaceMovie`](https://github.com/butterflyology/spaceMovie) that uses colors from the *Star Wars* films.
 
 ### NMDS
 
-Lastly, I want to employ a method callen **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in ordination space. This doesn't mean much except to say that similar things should be closer together than dissimilar things. 
+Lastly, I want to employ a method called **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in ordination space. This doesn't mean much except to say that similar things should be closer together than dissimilar things. 
 
 ```{r nmds, include = FALSE}
+series <- c("Prequel", "Prequel", "Prequel", "Original Trilolgy", "Original Trilolgy", "Original Trilolgy", "New Trilogy", "Story")
 SW_nmds <- metaMDS(SW_dist, trace = FALSE)
 stressplot(SW_nmds, SW_dist)
 ```
 
-```{r nmds_plot, echo = FALSE, warning = FALSE, fig.cap = "NMDS Ordination plot of the 7 Star Wars films."}
-plot(SW_nmds, type = "t", las = 1, cex = 1.2)
+```{r nmds_plot, echo = FALSE, warning = FALSE, fig.cap = "NMDS Ordination plot of the Star Wars films."}
+plot(SW_nmds, type = "t", las = 1, cex = 1.2, xlab = "Axis 1", ylab = "Axis 2", xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.4))
+ordiellipse(SW_nmds, series, col = c(alpha(SW_palette("TPM")[2], 0.3), c(alpha(SW_palette("ANH")[4], 0.3))), kind = "ehull", lwd = 3)
 ```
 
-Here we see that the original trilogy films are closer to each other than they are to other films, and TFA is still closest to the original trilogy. The prequels are spread out a bit but one could easily draw a circle around those films without including any of the other films. *The Force Awakens* is out there by itself a bit but still closest to the original trilogy.
+Think about which films you could draw an ellipse around without including any other films. We could draw a circle around the prequels that only contains the prequels. This suggests that the prequel films are closer to each other than they are to other films. It also appears that **The Force Awakens** is closest to the original trilogy. These findings are consistent with the clustering plot we saw earlier. What is really cool about this plot is we see just how far away **Rogue One** is from the rest of the films. 
+
+
 
 ## Conclusions
 
-I have three big take aways about the music of the *Star Wars* films from this exercise:
+I have three big takeaways about the music of the *Star Wars* films from this exercise:
 
-1. The original trilogy films are most similar to each other.
-1. The prequel films are most similar to each other.
-1. *The Force Awakens* is more similar to the original trilogy than to the prequels.
+1. The *original trilogy* films are most similar to each other.
+1. The *prequel trilogy* films are most similar to each other.
+1. **The Force Awakens** is more similar to the original trilogy than to the prequels.
+1. **Rogue One** is its own thing.
 
-These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that *The Force Awakens* is building off of the original trilogy, which is the most recent one relative to *TFA*. 
+These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that *The Force Awakens* is building off of the original trilogy, which makes chronological sense. Lastly, Michael Giacchino used themes found in **A New Hope** to ground **Rogue One** in the *Star Wars* musical universe.
