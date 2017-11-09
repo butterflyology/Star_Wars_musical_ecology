@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", cache = TRUE)
   I love [*Star Wars.*](http://www.starwars.com/) I love the story telling and fantasy, but I especially love the music. John Williams is amazing. There was a podcast out there called [*Star Wars Oxygen*](http://www.rebelforceradio.com/star-wars-oxygen/) that covered the music of *Star Wars* and it was one of my favorite podcasts of all time. [Jimmy Mac](http://www.rebelforceradio.com/jimmy-mac/) hosted while voice actor, musician, and composer [David W. Collins](http://starwars.wikia.com/wiki/David_W._Collins) broke down the scores for the films we know and love in a way that gave me a new appreciation for the films. I say there *was a podcast* because the podcast went dark following the release of **Rogue One**. After 38 wonderful volumes the podcast just wasn't updated any more and we the fans have not heard anything about why they stopped producing the show. 
 
 ### Species diversity
-  I also love statistics and ecology, which is the study of how organisms relate to each other and their environments. One exciting area of research deals with **diversity.** We can use statistics to figure out how many things live in a certain area and compare how different habitats are similar or different to one another. In order to conduct an analysis like this you need a "count matrix," which has **habitats** on rows and **species** in columns. The cells are filled in with counts of how many of each **species** is found in each habitat. An example of a count matrix could look like this:
+  I also love statistics and ecology, which is the study of how organisms relate to each other and their environments. One exciting area of research deals with **species diversity**, which is how many species are found in and among sites. We can use statistics to figure out how many things live in a certain area and compare how different habitats are similar or different to one another. In order to conduct an analysis like this you need a "count matrix," which has **habitats** in the rows and **species** in the columns. The cells are filled in with counts of how many of each **species** is found in each **habitat**. An example of a count matrix could look like this, where butterfly **species** are in columns and different habitats are in rows:
   
   ||*Danaus plexippus*|*Vanessa cardui*|*Adelpha bredowii*|
   |:--:|:--:|:--:|:--:|
@@ -48,13 +48,13 @@ Toy_dist <- vegdist(Toy_data, method = "jaccard", diag = FALSE)
 Toy_clust <- hclust(Toy_dist, "ward.D")
 ```
 
-If we plot these relationships as a tree (after some statistical wankery) we see that Donner Pass and Sierraville appear close together with Davis far apart from them. 
+If we plot these relationships as a tree (after applying some statistics) we see that Donner Pass and Sierraville are most similar to each other (they are connected by a branch). This makes sense, because Donner Pass and Sierraville are about 50 km apart, while both sites are about 160 km from Davis.
 
 ```{r Toy_clust, echo = FALSE, fig.cap = "Cluster plot of the toy example referred to above."}
 plot(Toy_clust, main = "", xlab = "", sub = "")
 ```
 
-Please note here that I have created this page using `RMardown` in `RStudio`. All of the code and data used to create this post are freely available through this project's [`github` repository]().
+Please note here that I have created this page using `RMardown` in `RStudio`. For those curious, all of the code and data used to create this post are freely available through this project's [`github` repository](https://github.com/butterflyology/Star_Wars_musical_ecology).
 
 ### Star Wars musical ecology
 
@@ -68,7 +68,7 @@ We can apply statistics to *Star Wars*!!!! Oh happy day!!!
 
 ## The data
 
-To reverse engineer the theme tracker I listened back through all of the *Star Wars Oxygen* episode with pencil and paper ready. I made note of how often a theme was played during a particular film every time Mr. Collins mentioned it. In some instances, I had to get a bit of help and I read the breakdowns and threads from these sites:
+To reverse engineer the theme tracker I listened back through all of the *Star Wars Oxygen* episodes with pencil and paper ready. I made note of how often a theme was played during a particular film every time Mr. Collins mentioned it. In some instances, I had to get a bit of help and I read the breakdowns and threads from these sites:
 
 * [jwfan.com](http://www.jwfan.com/)
 * [*Star Wars* wikia](http://starwars.wikia.com/wiki/Binary_Sunset)
@@ -76,9 +76,9 @@ To reverse engineer the theme tracker I listened back through all of the *Star W
 
 This was especially helpful when going through **Attack of the Clones**, which had a lot of music edits.
 
-I then attempted my own impression of David W. Collins and *Star Wars Oxygen* and went through **Rogue One** three times and counted each instance of what I thought was a "theme." I am almost certainly wrong because I am not a trained musician and I might have considered themes to be separate when they were they were actually part of the same leitmotifs.
+I then attempted my own impression of David W. Collins and *Star Wars Oxygen* and went through **Rogue One** three times and counted each instance of what I thought was a "theme." I am almost certainly wrong because I am not a trained musician and I might have considered themes to be separate entities when they were they were actually part of the same leitmotifs.
 
-The data I ended up with, and which are used here had:
+The data I ended up with, and which are used here, had:
 
 * **8** rows - one for each film ("ecosystem")
 * **48** columns - one for each theme ("species")
@@ -88,7 +88,7 @@ SW_data <- read.csv("../data/DWC_theme_tracker.csv", header = TRUE, row.names = 
 dim(SW_data)
 ```
 
-These data could be wrong or incomplete and are in need of improvement. I am particularly concerned by the lack of "rare" themes in the data set. Rare things are important in ecology. There are a few ways you could contribute:
+These data could be wrong or incomplete and are in need of improvement. I am particularly concerned by the lack of "rare" themes in the data set. Rare things can be important in ecology. Help me! Please contribute to the theme tracker. There are a few ways you could contribute:
 
 * Edit a [Google Doc](https://docs.google.com/spreadsheets/d/1zN0OdNH8btShE3pk09FUaM7Z-UhRg9gZdgxe_IKWkfY/edit?usp=sharing)
 * Submit a pull request through [`github`](https://github.com/butterflyology/Star_Wars_musical_ecology) (for those with technical skills).
@@ -321,7 +321,7 @@ themes_film_str
 
 
 ### Clustering
-Now we'll make a tree depicting the relationships between the seven films of the *Star Wars* saga just as we did in the above example. 
+Now we'll make a tree depicting the relationships between the seven films of the *Star Wars* saga just as we did in the toy example above.
 
 ```{r SW_clust, include = FALSE}
 SW_dist <- vegdist(SW_data, method = "jaccard", diag = FALSE, na.rm = TRUE)
@@ -329,15 +329,15 @@ SW_dist <- vegdist(SW_data, method = "jaccard", diag = FALSE, na.rm = TRUE)
 SW_clust <- hclust(SW_dist, method = "complete")
 ```
 
-A prediction on the clustering analysis. The three *original trilogy* films will cluster together separate from the *prequel trilogy* films, which will also cluster together. I think that **The Force Awakens**  and **Rogue One** will be more similar, musically, to the *original trilogy* than the prequels. 
+A prediction on the clustering analysis. I postulate that the three *original trilogy* films will cluster together separate from the *prequel trilogy* films (which will also cluster together). I also predict that **The Force Awakens**  and **Rogue One** will be more similar to the *original trilogy* than the prequels. 
 
-Adding the data from **Rogue One** allows us to see where that film lies in relation to the others. Michael Giacchino rooted the music for **Rogue One** firmly within *Star Wars*. He used parts from **A New Hope** to form the themes used in **Rogue One**, for example Jyn Erso's Suite was based on "the Message," which plays in the background with Obi Wan says "You must learn the ways of the Force...." It is also the only *Star Wars* film to share "Darth Vader's" theme with *A New Hope.*
+Adding the data from **Rogue One** allows us to see where that film lies in relation to the others. Michael Giacchino rooted the music for **Rogue One** firmly within *Star Wars*. He used parts from **A New Hope** to form the themes used in **Rogue One**, for example Jyn Erso's Suite was based on "the Message," which plays in the background when Obi-Wan says "You must learn the ways of the Force...." It is also the only *Star Wars* film to share "Darth Vader's" theme with *A New Hope.*
 
 ```{r SW_plot, echo = FALSE, fig.cap = "Clustering of the Star Wars films based on the their musical theme counts."}
 plot(SW_clust, main = "", xlab = "", sub = "")
 ```
 
-This plot shows **Rogue One** as more musically related to the original trilogy, which makes a lot of sense to me. However, the themes shared between **A Hew Hope** & **The Forece Awakens** and **The Empire Strikes Back** & **Return of the Jedi** create similarities that are too strong for **Rogue One** to break. 
+This plot shows that the *prequel trilogy* films do indeed cluster together, and that the *original trilogy* films cluster together with **The Forece Awakens**. **Rogue One** is more musically related to the original trilogy, which makes a lot of sense to me because they share a lot of themes. However, the themes shared between **A Hew Hope** & **The Forece Awakens** and **The Empire Strikes Back** & **Return of the Jedi** create similarities that are too strong for **Rogue One** to break to it lies outside of the group created by Episode's VI through VII. 
 
 ```{r DW_d, include = FALSE}
 # A simple function to calculate a range of q values for a, b, and g diversity
@@ -364,7 +364,8 @@ ROnea <- D.iter.q(data = SW_data[8, ], level = "alpha", q = 5)
 
 ### Jost's D
 
-Here we count the number of different themes and consider how many different themes there are if we weight "rarity." 
+This metric is a way of counting how many things there are in a certain habitat. The cool thing about *Jost's D* is that you can consider how many things there are while accounting for how rare they are (that is the *q* on the bottom of the plot. 
+Here we count the number of different themes by film and consider how many different themes there are if we weight "rarity." 
 
 ```{r alpha_plot, echo = FALSE, fig.cap = "Plot of the effective number of themes by Star Wars film"}
 plot(x = seq(from = 0, to = 5, length.out = 4), y = seq(from = 0, to = 20, length.out = 4), xaxt = "n", type = "n", ylab = "", xlab = "", las = 1, main = "")
@@ -408,15 +409,15 @@ lines(y = ROnea, x = seq(0, 5), pch = 19, lwd = 2, type = "l",col = SW_palette("
 legend("topright", bty = "n", legend = c("E I", "E II", "E III", "E IV", "E V", "E VI", "E VII", "ROne"), pch = 19, col = c(SW_palette("TPM")[1], SW_palette("AOTC")[2], SW_palette("ROTS")[6], SW_palette("ANH")[4], SW_palette("TESB")[5], SW_palette("ROTJ")[5], SW_palette("TFA")[4], SW_palette("Inquisitor")[1]))
 ```
 
-To read this plot we look at the y (vertical) axis to see the number of themes. Along the x (horizontal) axis we have the different weights we place on "rarity." A weight of 0 means that all themes are equal and it represents the actual number of themes present in each film. As we move right along the x axis we decrease the effect that a rarely occurring theme has on the y axis value. All the way to the right we hardly consider the effect that rare themes have on the effective number of themes. 
+To read this plot we look at the y (vertical) axis to see the number of themes. The Greek letter alpha ($\alpha$) is the statistical designation for "unique things." Along the x (horizontal) axis we have the different weights we place on "rarity," the *q* that I mentioned above. A weight of 0 means that all themes are equal and it represents the total number of themes present in each film. As we move right along the x-axis we decrease the number of themes because we give them less weight.  All the way to the right (*q* = 5) we hardly consider the effect that rare themes have on the number of themes. 
 
-Note that **A New Hope** has the fewest number of themes (when *q* = 0). This is likely a result of incomplete data in the spreadsheet or could be reflective of the fact that it is the first films. **Rogue One** actually have the highest number of themes, but from the John Williams scored films **Revenge of the Sith** has the most themes in our data set. One thing that appears evident from this analysis, is that all films have ~6 themes frequently used throughout. 
+Note that **A New Hope** has the fewest number of themes (when *q* = 0). This is likely a result of either incomplete data in the spreadsheet or could be reflective of the fact that it is the first film. **Rogue One** actually have the highest total number of themes, but from the John Williams scored films **Revenge of the Sith** has the most themes in our data set. One thing that appears evident from this analysis, is that all films have ~6 themes that we hear frequently in each film. 
 
-One last note of geekery. The colors from that plot were made with an `R` package called [`spaceMovie`](https://github.com/butterflyology/spaceMovie) that uses colors from the *Star Wars* films.
+One last note of geekery. The colors from that plot were made with an `R` package called [`spaceMovie`](https://github.com/butterflyology/spaceMovie), which uses colors from the *Star Wars* franchise.
 
 ### NMDS
 
-Lastly, I want to employ a method called **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in ordination space. This doesn't mean much except to say that similar things should be closer together than dissimilar things. 
+Lastly, I employ another method of visualization called **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in ordination space. In this case, each film appears on the plot in a place relative to the other films. That is to say, similar things should be closer together than dissimilar things. 
 
 ```{r nmds, include = FALSE}
 series <- c("Prequel", "Prequel", "Prequel", "Original Trilolgy", "Original Trilolgy", "Original Trilolgy", "New Trilogy", "Story")
@@ -429,17 +430,17 @@ plot(SW_nmds, type = "t", las = 1, cex = 1.2, xlab = "Axis 1", ylab = "Axis 2", 
 ordiellipse(SW_nmds, series, col = c(alpha(SW_palette("TPM")[2], 0.3), c(alpha(SW_palette("ANH")[4], 0.3))), kind = "ehull", lwd = 3)
 ```
 
-Think about which films you could draw an ellipse around without including any other films. We could draw a circle around the prequels that only contains the prequels. This suggests that the prequel films are closer to each other than they are to other films. It also appears that **The Force Awakens** is closest to the original trilogy. These findings are consistent with the clustering plot we saw earlier. What is really cool about this plot is we see just how far away **Rogue One** is from the rest of the films. 
+Think about which films you could draw an ellipse around without including any other films. We could draw an ellipse around the *prequel trilogy* so that the line only contains the prequels. This suggests that the prequel films are closer to each other than they are to other films. It also appears that **The Force Awakens** is closest to the *original trilogy*. These findings are consistent with the clustering plot we saw earlier. What is really cool about this plot is we see just how far away **Rogue One** is from the rest of the films. Even though **Rogue One** is related to the episodic films of *Star Wars*, it is its own thing. 
 
 
 
 ## Conclusions
 
-I have three big takeaways about the music of the *Star Wars* films from this exercise:
+I have four big takeaways about the music of the *Star Wars* films based on this exercise:
 
 1. The *original trilogy* films are most similar to each other.
 1. The *prequel trilogy* films are most similar to each other.
 1. **The Force Awakens** is more similar to the original trilogy than to the prequels.
 1. **Rogue One** is its own thing.
 
-These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that *The Force Awakens* is building off of the original trilogy, which makes chronological sense. Lastly, Michael Giacchino used themes found in **A New Hope** to ground **Rogue One** in the *Star Wars* musical universe.
+These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that *The Force Awakens* is building off of the original trilogy, which makes chronological sense. I predict that **The Last Jedi** will be closely related to **THe Force Awakens**. Lastly, Michael Giacchino used themes found in **A New Hope** to ground **Rogue One** in the *Star Wars* musical universe, but made it his own. 
