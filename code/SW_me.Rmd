@@ -54,11 +54,8 @@ If we plot these relationships as a tree (after applying some statistics) we see
 plot(Toy_clust, main = "", xlab = "", sub = "")
 ```
 
-<<<<<<< HEAD
-Please note here that I have created this page using `RMarkdown` in `RStudio`. All of the code and data used to create this post are freely available through this project's [`github` repository]().
-=======
 Please note here that I have created this page using `RMardown` in `RStudio`. For those curious, all of the code and data used to create this post are freely available through this project's [`github` repository](https://github.com/butterflyology/Star_Wars_musical_ecology).
->>>>>>> gh-pages
+
 
 ### Star Wars musical ecology
 
@@ -425,15 +422,17 @@ One last note of geekery. The colors from that plot were made with an `R` packag
 Lastly, I employ another method of visualization called **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in ordination space. In this case, each film appears on the plot in a place relative to the other films. That is to say, similar things should be closer together than dissimilar things. 
 
 ```{r nmds, include = FALSE}
-series <- c("Prequel", "Prequel", "Prequel", "Original Trilolgy", "Original Trilolgy", "Original Trilolgy", "New Trilogy", "Story")
+series <- c("Prequel", "Prequel", "Prequel", "Original Trilolgy", "Original Trilolgy", "Original Trilolgy", "New Trilogy", "New Trilogy", "Story")
 SW_nmds <- metaMDS(SW_dist, trace = FALSE)
 stressplot(SW_nmds, SW_dist)
 ```
 
 ```{r nmds_plot, echo = FALSE, warning = FALSE, fig.cap = "NMDS Ordination plot of the Star Wars films."}
-plot(SW_nmds, type = "t", las = 1, cex = 1.2, xlab = "Axis 1", ylab = "Axis 2", xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.4))
-ordiellipse(SW_nmds, series, col = c(alpha(SW_palette("TPM")[2], 0.3), c(alpha(SW_palette("ANH")[4], 0.3))), kind = "ehull", lwd = 3)
+plot(SW_nmds, type = "t", las = 1, cex = 1.2, xlab = "Axis 1", ylab = "Axis 2", xlim = c(-0.5, 0.5), ylim = c(-0.55, 0.4))
+ordiellipse(SW_nmds, series, draw = "lines", col = c(alpha(SW_palette("TPM")[2], 0.3), c(alpha(SW_palette("ANH")[4], 0.3)),
+c(alpha(SW_palette("TESB")[1], 0.3))), kind = "ehull", lwd = 3)
 ```
+
 
 Think about which films you could draw an ellipse around without including any other films. We could draw an ellipse around the *prequel trilogy* so that the line only contains the prequels. This suggests that the prequel films are closer to each other than they are to other films. It also appears that **The Force Awakens** is closest to the *original trilogy*. These findings are consistent with the clustering plot we saw earlier. What is really cool about this plot is we see just how far away **Rogue One** is from the rest of the films. Even though **Rogue One** is related to the episodic films of *Star Wars*, it is its own thing. 
 
