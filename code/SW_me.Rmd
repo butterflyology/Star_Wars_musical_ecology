@@ -16,17 +16,18 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", cache = TRUE)
 ## Introduction
 
 ### Star Wars Oxygen
-  I love [*Star Wars.*](http://www.starwars.com/) I love the story telling and fantasy, but I especially love the music. John Williams is amazing. There was a podcast out there called [*Star Wars Oxygen*](http://www.rebelforceradio.com/star-wars-oxygen/) that covered the music of *Star Wars* and it was one of my favorite podcasts of all time. [Jimmy Mac](http://www.rebelforceradio.com/jimmy-mac/) hosted while voice actor, musician, and composer [David W. Collins](http://starwars.wikia.com/wiki/David_W._Collins) broke down the scores for the films we know and love in a way that gave me a new appreciation for the films. I say there *was a podcast* because the podcast went dark following the release of **Rogue One**. After 38 wonderful volumes the podcast just wasn't updated any more and we the fans have not heard anything about why they stopped producing the show. 
+  I **love** [*Star Wars.*](http://www.starwars.com/) I love the story telling and fantasy, but I especially love the music. John Williams is amazing. There was a podcast out there called [*Star Wars Oxygen*](http://www.rebelforceradio.com/star-wars-oxygen/) that covered the music of *Star Wars* and it was one of my favorite podcasts of all time. [Jimmy Mac](http://www.rebelforceradio.com/jimmy-mac/) hosted while voice actor, musician, and composer [David W. Collins](http://starwars.wikia.com/wiki/David_W._Collins) broke down the scores for the films we know and love in a way that gave me a new appreciation for the films. I say there *was a podcast* because the podcast went dark following the release of **Rogue One**. After 38 wonderful volumes the podcast just wasn't updated any more and we the fans have not heard anything about why they stopped producing the show. 
+
 
 ### Species diversity
-  I also love statistics and ecology, which is the study of how organisms relate to each other and their environments. One exciting area of research deals with **species diversity**, which is how many species are found in and among sites. We can use statistics to figure out how many things live in a certain area and compare how different habitats are similar or different to one another. In order to conduct an analysis like this you need a "count matrix," which has **habitats** in the rows and **species** in the columns. The cells are filled in with counts of how many of each **species** is found in each **habitat**. An example of a count matrix could look like this, where butterfly **species** are in columns and different habitats are in rows:
+  I also love statistics and ecology, which is the study of how organisms relate to each other and their environments. One exciting area of research deals with **species diversity**, which is how many species are found in and among sites. We can use statistics to figure out how many things live in a certain area and compare how different habitats are similar or different from one another. In order to conduct an analysis like this you need a **count matrix**, which has **habitats** in the rows and **species** in the columns. The cells are filled in with counts of how many of each **species** is found in each **habitat**. An example of a count matrix could look like this, where butterfly **species** are in columns and different habitats are in rows:
   
   ||*Danaus plexippus*|*Vanessa cardui*|*Adelpha bredowii*|
   |:--:|:--:|:--:|:--:|
   |Donner Pass|5|6|0|
   |Sierraville|4|2|2|
   |Davis|0|0|3|
-Table: Example of a count matrix where each row represents a habitat and each column represents a species. The cells are filled in with counts of the number of each species observed at each habitat.
+**Table 1**: Example of a **count matrix** where each row represents a habitat and each column represents a species. The cells are filled in with counts of the number of each species observed at each habitat.
 
 In this example, we can see that Donner Pass and Sierraville are similar to each other for two species. Also Davis and Sierraville are somewhat similar to each other because they have one species in common. If we were going to group these sites based on similarity, Donner Pass and Sierraville would be more similar to each other than to Davis.
 
@@ -48,28 +49,29 @@ Toy_dist <- vegdist(Toy_data, method = "jaccard", diag = FALSE)
 Toy_clust <- hclust(Toy_dist, "ward.D")
 ```
 
-If we plot these relationships as a tree (after applying some statistics) we see that Donner Pass and Sierraville are most similar to each other (they are connected by a branch). This makes sense, because Donner Pass and Sierraville are about 50 km apart, while both sites are about 160 km from Davis.
+If we plot these relationships (after applying some statistics) in the form of a "tree", where similar habitats are connected by a "branch," we see that Donner Pass and Sierraville are most similar to each other (they are connected by a branch). This makes sense, because Donner Pass and Sierraville are about 50 km apart, while both sites are about 160 km from Davis.
 
 ```{r Toy_clust, echo = FALSE, fig.cap = "Cluster plot of the toy example referred to above."}
 plot(Toy_clust, main = "", xlab = "", sub = "")
 ```
 
+A short aside, I have created this page using the program `R` and the `RMardown` package in `RStudio`. For those curious, all of the code and data used to create this exact post are freely available through this project's [`github` repository](https://github.com/butterflyology/Star_Wars_musical_ecology).
 
-Please note here that I have created this page using `RMardown` in `RStudio`. For those curious, all of the code and data used to create this post are freely available through this project's [`github` repository](https://github.com/butterflyology/Star_Wars_musical_ecology).
 
 ### Star Wars musical ecology
 
 During the *Star Wars Oxygen* podcast, David W. Collins began what he called his "theme tracker," which was essential a spreadsheet of the number of times a theme played per film. 
 
-David W. Collins made a count matrix. 
+David W. Collins made a **count matrix**.
 
-We can use statistics on count matrices. 
+We can use statistics on a **count matrix**.
 
 We can apply statistics to *Star Wars*!!!! Oh happy day!!!
 
+
 ## The data
 
-To reverse engineer the theme tracker I listened back through all of the *Star Wars Oxygen* episodes with pencil and paper ready. I made note of how often a theme was played during a particular film every time Mr. Collins mentioned it. In some instances, I had to get a bit of help and I read the breakdowns and threads from these sites:
+To reverse engineer the theme tracker I listened back through all of the *Star Wars Oxygen* episodes with pencil and paper ready. I made note of how often a theme was played during a particular film every time Mr. Collins mentioned it. In some instances, I had to get a bit of help so I watched the films and made notes of all the times I heard a theme. I also read the breakdowns and threads from these sites:
 
 * [jwfan.com](http://www.jwfan.com/)
 * [*Star Wars* wikia](http://starwars.wikia.com/wiki/Binary_Sunset)
@@ -77,12 +79,12 @@ To reverse engineer the theme tracker I listened back through all of the *Star W
 
 This was especially helpful when going through **Attack of the Clones**, which had a lot of music edits.
 
-I then attempted my own impression of David W. Collins and *Star Wars Oxygen* and went through **Rogue One** three times and counted each instance of what I thought was a "theme." I am almost certainly wrong because I am not a trained musician and I might have considered themes to be separate entities when they were they were actually part of the same leitmotifs.
+I then attempted my own impression of David W. Collins and *Star Wars Oxygen* and went through **Rogue One** three times and counted each instance of what I thought was a "theme." At the time of writing this (2017-12-22) I have seen **The Last Jedi** four time and in the last two viewings I took a piece of paper and a pencil with me to note every time I hear a theme. I am almost certainly wrong because I am not a trained musician and I might have considered themes to be separate entities when they were they were actually part of the same leitmotifs. Regardless, the number I present here are based on the work of other and myself and I stand by them. 
 
 The data I ended up with, and which are used here, had:
 
 * **8** rows - one for each film ("ecosystem")
-* **48** columns - one for each theme ("species")
+* **52** columns - one for each theme ("species")
 
 ```{r load_data, include = FALSE}
 SW_data <- read.csv("../data/DWC_theme_tracker.csv", header = TRUE, row.names = 1)
