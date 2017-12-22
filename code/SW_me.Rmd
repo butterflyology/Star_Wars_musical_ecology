@@ -21,15 +21,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", cache = TRUE)
 
 ### Species diversity
   I also love statistics and ecology, which is the study of how organisms relate to each other and their environments. One exciting area of research deals with **species diversity**, which is how many species are found in and among sites. We can use statistics to figure out how many things live in a certain area and compare how different habitats are similar or different from one another. In order to conduct an analysis like this you need a **count matrix**, which has **habitats** in the rows and **species** in the columns. The cells are filled in with counts of how many of each **species** is found in each **habitat**. An example of a count matrix could look like this, where butterfly **species** are in columns and different habitats are in rows:
-  
-  ||*Danaus plexippus*|*Vanessa cardui*|*Adelpha bredowii*|
-  |:--:|:--:|:--:|:--:|
-  |Donner Pass|5|6|0|
-  |Sierraville|4|2|2|
-  |Davis|0|0|3|
-**Table 1**: Example of a **count matrix** where each row represents a habitat and each column represents a species. The cells are filled in with counts of the number of each species observed at each habitat.
 
-In this example, we can see that Donner Pass and Sierraville are similar to each other for two species. Also Davis and Sierraville are somewhat similar to each other because they have one species in common. If we were going to group these sites based on similarity, Donner Pass and Sierraville would be more similar to each other than to Davis.
 
 ```{r preliminaries, include = FALSE}
 set.seed(896235)
@@ -42,16 +34,30 @@ library("tidyverse")
 library("plotly")
 ```
 
+
 ```{r Toy_example, include = FALSE}
-Toy_data <- data.frame(D_plex = c(5, 4, 0), V_cardui = c(6, 2, 2), A_bredowii =  c(0, 0, 3), row.names = c("Donner_Pass", "Sierraville", "Davis"))
+Toy_data <- data.frame(Danaus_plexxipus = c(5, 4, 0), Vanessa_cardui = c(6, 2, 2), Adelpha_bredowii =  c(0, 0, 3), row.names = c("Donner_Pass", "Sierraville", "Davis"))
 
 Toy_dist <- vegdist(Toy_data, method = "jaccard", diag = FALSE)
 Toy_clust <- hclust(Toy_dist, "ward.D")
 ```
 
+
+**Table 1**: Example of a **count matrix** where each row represents a habitat and each column represents a species. The cells are filled in with counts of the number of each species observed at each habitat.
+  
+  ||*Danaus plexippus*|*Vanessa cardui*|*Adelpha bredowii*|
+  |:--:|:--:|:--:|:--:|
+  |Donner Pass|5|6|0|
+  |Sierraville|4|2|2|
+  |Davis|0|0|3|
+
+
+In this example, we can see that Donner Pass and Sierraville are similar to each other for two species. Also Davis and Sierraville are somewhat similar to each other because they have one species in common. If we were going to group these sites based on similarity, Donner Pass and Sierraville would be more similar to each other than to Davis.
+
+
 If we plot these relationships (after applying some statistics) in the form of a "tree", where similar habitats are connected by a "branch," we see that Donner Pass and Sierraville are most similar to each other (they are connected by a branch). This makes sense, because Donner Pass and Sierraville are about 50 km apart, while both sites are about 160 km from Davis.
 
-```{r Toy_clust, echo = FALSE, fig.cap = "Cluster plot of the toy example referred to above."}
+```{r Toy_clust, echo = FALSE, fig.cap = "**Figure 1**: Cluster plot of the toy example referred to above."}
 plot(Toy_clust, main = "", xlab = "", sub = "")
 ```
 
@@ -111,7 +117,7 @@ Why did I make this plot?
 Well, seeing how many times appears in all of the *Star Wars* films can give us an idea of what the major themes are in the series. For example, *The Force / Obi Wan Kenobi's theme* is used 135 time in the films; which is 42 times more than we hear the *Main title / Luke's theme*. To really investigate the plot I made, hover your cursor over each bar to see what it represents.
 
 
-```{r plot_all, echo = FALSE, fig.cap = "Plot of all theme appearances", warning = FALSE, message = FALSE, error = FALSE}
+```{r plot_all, echo = FALSE, fig.cap = "**Figure 2**: Plot of all theme appearances", warning = FALSE, message = FALSE, error = FALSE}
 #SW_tidy <- SW_data
 SW_tidy <- as.tibble(SW_data)
 
@@ -194,7 +200,7 @@ plotly_all_themes_str
 
 It may also be informative to look at the distrbiution of themes within each film. I've made a plot where each film is represented by a bar and that bar is filled according to the frequency of the themes in that movie. To explore this figure, hover your cursor over a bar to see the theme and number of times it appeared in that film. Try clicking on `compare data on hover` to see all the themes at once. The color for each theme is consitent across all the films. 
 
-```{r stacked_histo, echo = FALSE, warning = FALSE, message = FALSE, fig.cap = "Themes by film"}
+```{r stacked_histo, echo = FALSE, warning = FALSE, message = FALSE, fig.cap = "**Figure 3**: Themes by film"}
 SW_tidy_2 <- SW_tidy %>% 
   mutate(Film = as.factor(rownames(SW_data))) %>% 
   group_by(Film) %>% 
@@ -367,7 +373,7 @@ Adding the data from **Rogue One** allows us to see where that film lies in rela
 
 I have also added data from two viewings of **The Last Jedi**, which I think is a masterful score. I picked up on themes for Finn and Rose, as well as the return of both of Kylo Ren's themes, Rey's theme, Poe's theme, and the March of the Resistance. Not going to lie, I choked up when I heard Luke and Leia in the final scene. 
 
-```{r SW_plot, echo = FALSE, fig.cap = "Clustering of the Star Wars films based on the their musical theme counts."}
+```{r SW_plot, echo = FALSE, fig.cap = "**Figure 4**: Clustering of the Star Wars films based on the their musical theme counts."}
 plot(SW_clust, main = "", xlab = "", sub = "")
 ```
 
@@ -401,7 +407,7 @@ ROnea <- D.iter.q(data = SW_data[9, ], level = "alpha", q = 5)
 This metric is a way of counting how many things there are in a certain habitat. The cool thing about *Jost's D* is that you can consider how many things there are while accounting for how rare they are (that is the *q* on the bottom of the plot. 
 Here we count the number of different themes by film and consider how many different themes there are if we weight "rarity." 
 
-```{r alpha_plot, echo = FALSE, fig.cap = "Plot of the effective number of themes by Star Wars film"}
+```{r alpha_plot, echo = FALSE, fig.cap = "**Figure 5**: Plot of the effective number of themes by Star Wars film"}
 plot(x = seq(from = 0, to = 5, length.out = 4), y = seq(from = 4, to = 20, length.out = 4), xaxt = "n", type = "n", ylab = "", xlab = "", las = 1, main = "")
 axis(1, at = c(0, 1, 2, 3, 4, 5))
 mtext(expression(paste(italic(alpha))), side = 2, padj = -2.5, srt = 0, cex = 2)
@@ -463,7 +469,7 @@ SW_nmds <- metaMDS(SW_dist, trace = FALSE)
 stressplot(SW_nmds, SW_dist)
 ```
 
-```{r nmds_plot, echo = FALSE, warning = FALSE, error = FALSE, fig.cap = "NMDS Ordination plot of the Star Wars films."}
+```{r nmds_plot, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE, fig.cap = "**Figure 6**: NMDS Ordination plot of the Star Wars films."}
 plot(SW_nmds, type = "t", las = 1, cex = 1.2, xlab = "Axis 1", ylab = "Axis 2", xlim = c(-0.5, 0.5), ylim = c(-0.55, 0.4))
 ordiellipse(SW_nmds, series, draw = "lines", col = c(alpha(SW_palette("TPM")[2], 0.3), c(alpha(SW_palette("ANH")[4], 0.3)),
 c(alpha(SW_palette("TESB")[1], 0.3))), kind = "ehull", lwd = 3)
@@ -484,3 +490,11 @@ I have four big takeaways about the music of the *Star Wars* films based on this
 These results make a lot of sense to me. I interpret these results to mean that John Williams kept similar themes throughout each of the two trilogies, and that the *new trilogy* is building off of the *original trilogy*. 
 
 Prior to **The Last Jedi**, I predicted that **Episode VIII** would appear closely related to **The Force Awakens**. I'm glad to see that I was right. If you don't believe that I predicted this, go through the "history" in the code repository that houses this page and see for yourself. Lastly, Michael Giacchino used themes found in **A New Hope** to ground **Rogue One** in the *Star Wars* musical universe, but made it his own.
+
+## Table
+
+In case you didn't want to follow the links to find the data I used for this post, below is copy:
+
+```{r kable, echo = FALSE}
+knitr::kable(x = SW_data, align = "c", format = "html", caption = "**Table 2**: Data used in the present analysis")
+```
