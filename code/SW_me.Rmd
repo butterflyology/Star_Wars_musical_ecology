@@ -54,11 +54,8 @@ If we plot these relationships as a tree (after applying some statistics) we see
 plot(Toy_clust, main = "", xlab = "", sub = "")
 ```
 
-<<<<<<< HEAD
-Please note here that I have created this page using `RMarkdown` in `RStudio`. All of the code and data used to create this post are freely available through this project's [`github` repository]().
-=======
+
 Please note here that I have created this page using `RMardown` in `RStudio`. For those curious, all of the code and data used to create this post are freely available through this project's [`github` repository](https://github.com/butterflyology/Star_Wars_musical_ecology).
->>>>>>> gh-pages
 
 ### Star Wars musical ecology
 
