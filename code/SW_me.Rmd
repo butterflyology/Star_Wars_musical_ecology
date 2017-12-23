@@ -13,19 +13,20 @@ output:
 knitr::opts_chunk$set(echo = TRUE, fig.align = "center", cache = TRUE)
 ```
 
-## Introduction
+# Introduction
 
-In this post I apply some standard ecological statistics to the music of *Star Wars*. Doing so allows me to combine multiple things that I love. First, I'll walk the reader through the background and the podcast that prompted me to think I could apply statistics to *Star Wars* music. Then I give the reader some background on the type of stats I will apply and give a toy example. Then I go to town and do my best explain the results in plain language, but I do assume that you know what *Star Wars* is and that is has music. If I have failed to describe any of this in plain language please let me know so that I can edit the post and make this more approachable.
-
-A short aside, I have created this page using the program `R` and the `RMarkdown` package in `RStudio`. For those curious, all of the code and data used to create this exact post are freely available through this project's [`github` repository](https://github.com/butterflyology/Star_Wars_musical_ecology).
+In this post I apply some standard ecological statistics to the music of *Star Wars*. Doing so allows me to combine multiple things that I love. First, I'll walk the reader through the background and the podcast that gave me a new appreciation for the music of *Star Wars*. Then I give the reader some background on the type of stats I will apply and give a toy example. Then I go to town and do my best explain the results in plain language. I don't assume any knowledge fo statistics, but I do assume that you know what *Star Wars* is and that is has music. If I have failed to describe any of this in plain language please let me know so that I can edit the post and make this more approachable.
 
 
-### Star Wars Oxygen
+A short aside, I have created this page using the program `R` and the `RMarkdown` package in `RStudio`. There is a Table of Contents on the left hand side of your screen that you can use to move around the post. Click on a name in the Table of Contents that the page will navigate to that section and may expand to reveal sub-sections. For those curious, all of the code and data used to create this exact post are freely available through this project's [`github` repository](https://github.com/butterflyology/Star_Wars_musical_ecology).
+
+
+## Star Wars Oxygen
 
 I **love** [*Star Wars.*](http://www.starwars.com/) I love the story telling and fantasy, but I especially love the music. John Williams is amazing. There was a podcast out there called [*Star Wars Oxygen*](http://www.rebelforceradio.com/star-wars-oxygen/) that covered the music of *Star Wars* and it was one of my favorite podcasts of all time. [Jimmy Mac](http://www.rebelforceradio.com/jimmy-mac/) hosted while voice actor, musician, and composer [David W. Collins](http://starwars.wikia.com/wiki/David_W._Collins) broke down the scores for the films we know and love in a way that gave me a new appreciation for the films. I say there *was a podcast* because the podcast went dark following the release of **Rogue One**. After 38 wonderful volumes the podcast just wasn't updated any more and we the fans have not heard anything about why they stopped producing the show. 
 
 
-### Species diversity
+## Species diversity
   I also love statistics and ecology, which is the study of how organisms relate to each other and their environments. One exciting area of research deals with **species diversity**, which is how many species are found in and among sites. We can use statistics to figure out how many things live in a certain area and compare how habitats are similar or different from one another. In order to conduct an analysis like this you need a **count matrix**, which has **habitats** in the rows and **species** in the columns. The cells are filled in with counts of how many of each **species** is found in each **habitat**. An example of a count matrix could look like this, where butterfly **species** are in columns and different **habitats** are in rows:
 
 
@@ -43,28 +44,21 @@ library("kableExtra")
 
 
 ```{r Toy_example, include = FALSE}
-Toy_data <- data.frame(Danaus_plexxipus = c(5, 4, 0), Vanessa_cardui = c(6, 2, 2), Adelpha_bredowii =  c(0, 0, 3), row.names = c("Donner_Pass", "Sierraville", "Davis"))
+Toy_data <- data.frame(Danaus_plexxipus = c(5, 4, 0), Vanessa_cardui = c(6, 2, 2), Adelpha_bredowii =  c(0, 0, 3), row.names = c("Donner Pass", "Sierraville", "Davis"))
 
 Toy_dist <- vegdist(Toy_data, method = "jaccard", diag = FALSE)
 Toy_clust <- hclust(Toy_dist, "ward.D")
 ```
 
 
-```{r table_1, }
+```{r table_1, echo = FALSE}
 Genus_species <- c("*Danaus plexippus*", "*Vanessa cardui*", "*Adelpha bredowii*")
+Caption_1 <- ("**Table 1**: Example of a **count matrix** where each row represents a **habitat** and each column represents a **species**. The cells are filled with counts of the number of each species observed at each habitat.")
 
-knitr::kable(x = kable, format = "html", align = "c", col.names = Genus_species)
+knitr::kable(x = Toy_data, format = "html", align = "c", col.names = Genus_species, caption = Caption_1) %>% 
+  row_spec(row = 1:3, align = "c") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
 ```
-
-
-
-**Table 1**: Example of a **count matrix** where each row represents a **habitat** and each column represents a **species**. The cells are filled with counts of the number of each species observed at each habitat.
-  
-  ||*Danaus plexippus*|*Vanessa cardui*|*Adelpha bredowii*|
-  |:--:|:--:|:--:|:--:|
-  |Donner Pass|5|6|0|
-  |Sierraville|4|2|2|
-  |Davis|0|0|3|
 
 
 In this example, we can see that Donner Pass and Sierraville are similar to each other for two species (*D. plexippus* and *V. cardui*). Also Davis and Sierraville are somewhat similar to each other because they have one species in common (*V. cardui* and *A. bredowii*). If we were going to group these habitats based on similarity, Donner Pass and Sierraville would be more similar to each other than to Davis.
@@ -76,7 +70,7 @@ plot(Toy_clust, main = "", xlab = "", sub = "", lwd = 2)
 ```
 
 
-### Star Wars musical ecology
+# Star Wars musical ecology
 
 During the *Star Wars Oxygen* podcast, David W. Collins began what he called his "theme tracker," which was essential a spreadsheet of the number of times a theme played per film. Each theme was a column. Each film was a row.
 
@@ -120,10 +114,10 @@ These data could be incomplete and could benefit from outside assistance. I am s
 * Contact me on twitter: [\@butterflyology](https://twitter.com/butterflyology)
 
 
-## General Plots
+# General Plots
 
 
-### All the themes
+## All the themes
 
 Let's make a histogram where the total number of appearances each theme makes in the saga is plotted.
 
@@ -205,13 +199,13 @@ plotly_all_themes_str$x$data[[47]]$text <- "Yoda's theme - 25"
 plotly_all_themes_str$x$data[[48]]$text <- "Rebel Fanfare - 54"
 plotly_all_themes_str$x$data[[49]]$text <- "Rey's theme - 48"
 plotly_all_themes_str$x$data[[50]]$text <- "Han Solo and the Princess - 33"
-plotly_all_themes_str$x$data[[51]]$text <- "Across the Stars - 31"
-plotly_all_themes_str$x$data[[52]]$text <- "Leia's theme - 31"
+plotly_all_themes_str$x$data[[51]]$text <- "Leia's theme - 32"
+plotly_all_themes_str$x$data[[52]]$text <- "Across the Stars - 31"
 plotly_all_themes_str
 ```
 
 
-### Themes by Film
+## Themes by Film
 
 It may also be informative to look at the distribution of themes within each film. I've made a plot where each film is represented by a bar it is filled according to the frequency of the themes in that movie. To explore this figure, hover your cursor over a bar to see the theme and number of times it appeared in that film. Try clicking on `compare data on hover` to see all the themes at once. The color for each theme is consistent across all the films. 
 
@@ -267,7 +261,7 @@ themes_film_str$x$data[[14]]$text[5] <- "Force theme - 14"
 themes_film_str$x$data[[14]]$text[6] <- "Force theme - 19"
 themes_film_str$x$data[[14]]$text[7] <- "Force theme - 13"
 themes_film_str$x$data[[14]]$text[8] <- "Force theme - 25"
-themes_film_str$x$data[[14]]$text[8] <- "Force theme - 7"
+themes_film_str$x$data[[14]]$text[9] <- "Force theme - 7"
 themes_film_str$x$data[[15]]$text[1] <- "Grievous' theme - 3"
 themes_film_str$x$data[[16]]$text[1] <- "Guardians of the Whills - 7"
 themes_film_str$x$data[[17]]$text[1] <- "Han Solo and the Princess - 19"
@@ -302,6 +296,7 @@ themes_film_str$x$data[[29]]$text[3] <- "Leia's theme - 3"
 themes_film_str$x$data[[29]]$text[4] <- "Leia's theme - 4"
 themes_film_str$x$data[[29]]$text[5] <- "Leia's theme - 4"
 themes_film_str$x$data[[29]]$text[6] <- "Leia's theme - 10"
+themes_film_str$x$data[[29]]$text[7] <- "Leia's theme - 1"
 themes_film_str$x$data[[30]]$text[1] <- "Luke and Leia - 1"
 themes_film_str$x$data[[30]]$text[2] <- "Luke and Leia - 5"
 themes_film_str$x$data[[30]]$text[3] <- "Luke and Leia - 1"
@@ -369,10 +364,10 @@ themes_film_str
 I knew it! **The Last Jedi** has the most number of thematic appearances at over 150 (**Figure 3**)! I bet if we look at the diversity metrics below the same will be true for the total number of themes present in the film.
 
 
-## Analysis
+# Analysis
 
 
-### Clustering
+## Clustering
 
 Now we'll make a tree depicting the relationships between the eight films of the *Star Wars* saga and **Rogue One**, just as we did in the toy example above.
 
@@ -419,12 +414,12 @@ ROnea <- D.iter.q(data = SW_data[9, ], level = "alpha", q = 5)
 ```
 
 
-### Jost's D
+## Jost's D
 
 This metric is a way of counting how many things there are in a certain habitat. The cool thing about *Jost's D* is that you can consider how many things there are while accounting for how rare they are (that is the *q* on the bottom of **Figure 5**.
 Here we count the number of different themes by film and consider how many different themes there are if we weight "rarity." 
 
-```{r alpha_plot, echo = FALSE, fig.cap = "**Figure 5**: Plot of the effective number of themes by Star Wars film"}
+```{r alpha_plot, echo = FALSE, fig.cap = "**Figure 5**: Plot of the effective number of themes by Star Wars film."}
 plot(x = seq(from = 0, to = 5, length.out = 4), y = seq(from = 4, to = 20, length.out = 4), xaxt = "n", type = "n", ylab = "", xlab = "", las = 1, main = "")
 axis(1, at = c(0, 1, 2, 3, 4, 5))
 mtext(expression(paste(italic(alpha))), side = 2, padj = -2.5, srt = 0, cex = 2)
@@ -471,14 +466,14 @@ legend("topright", bty = "n", legend = c("E I", "E II", "E III", "E IV", "E V", 
 
 To read this plot we look at the y (vertical) axis to see the number of themes. The Greek letter alpha ($\alpha$) is the statistical designation for "unique things." Along the x (horizontal) axis we have the different weights we place on "rarity," the *q* that I mentioned above. A weight of 0 means that all themes are equal and it represents the total number of themes present in each film. As we move right along the x-axis we decrease the number of themes because we give them less weight. All the way to the right (*q* = 5) we hardly consider the effect that rare themes have on the number of themes. 
 
-Note that **The Empire Strikes Back** actually has the fewest total number of themes (when *q* = 0) at 8, followed by **A New Hope** with 9. When we get to **The Last Jedi** there are 18 different themes that appear in the film!  **Rogue One** actually have the highest total number of themes, but when we care less about rare themes (*q* = 5) **The Last Jedi** is a bit higher. One thing that appears evident from this analysis, is that all *Star Wars* films have ~5 themes that we hear frequently in each film. 
+Note that **The Empire Strikes Back** actually has the fewest total number of themes (when *q* = 0) at 8, followed by **A New Hope** with 9. When we get to **The Last Jedi** there are 18 different themes that appear in the film!  **Rogue One** actually have the highest total number of themes at 20, but when we care less about rare themes (*q* = 5) **The Last Jedi** is a bit higher. One way to think about this is that **Rogue One** had more themes that were only played a few times. One other take away from this analysis, is that all *Star Wars* films have ~5 themes that we hear frequently in each film, but we can't say if these themes are shared among all the films.
 
 One last note of geekery. The colors from that plot were made with an `R` package called [`spaceMovie`](https://github.com/butterflyology/spaceMovie), which uses colors from the *Star Wars* franchise.
 
 
-### NMDS
+## NMDS
 
-Lastly, I employ another method of visualization called **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in ordination space. In this case, each film appears on the plot in a place relative to the other films. That is to say, similar things should be closer together than dissimilar things. 
+Lastly, I employ another method of visualization called **NMDS** (**N**on-**M**etric Multi**D**imensional **S**caling) which  plots the locations of each "habitat" in space. In this case, each film appears on the plot in a place relative to the other films based on similarity. That is to say, similar things should be closer together than dissimilar things. 
 
 ```{r nmds, include = FALSE}
 series <- c("Prequel", "Prequel", "Prequel", "Original Trilolgy", "Original Trilolgy", "Original Trilolgy", "New Trilogy", "New Trilogy", "Story")
@@ -495,7 +490,7 @@ c(alpha(SW_palette("TESB")[1], 0.3))), kind = "ehull", lwd = 3)
 Think about which films you could draw an ellipse around without including any other films (**Figure 6**). We could have the computer draw an ellipse around the *prequel trilogy* so that it only contains the prequels,  suggesting that these films are more similar to each other than they are to other films. We can also have the computer draw an ellipse around the *original trilogy*. Lastly, **The Force Awakens** and **The Last Jedi** are off by themselves and I predict that once **Episode IX** comes out it fall out with them. Right now the computer can't draw an ellipse around two points. As in the clustering analysis, **Rogue One** is off doing its own thing. All together, these findings are consistent with the clustering "tree" we saw earlier. 
 
 
-## Conclusions
+# Conclusions
 
 I have four big takeaways about the music of the *Star Wars* films based on this exercise:
 
@@ -509,12 +504,13 @@ These results make a lot of sense to me. I interpret this to mean that John Will
 Before the **The Last Jedi** premiered, I predicted that **Episode VIII** would be closely related to **The Force Awakens**. I'm glad to see that I was right. If you don't believe that I predicted this, go through the "history" in the code repository that houses this page and see for yourself. Lastly, 
 
 
-## Table
+## Data Table
 
-In case you didn't want to follow the links to find the data I used for this post, below is copy:
+In case you didn't want to follow the links to view the data I used for this post, below is a copy you can peruse:
 
 ```{r kable, echo = FALSE}
 knitr::kable(x = SW_data, align = "c", format = "html", caption = "**Table 2**: Data used in the present analysis") %>% 
+  row_spec(row = 1:9, align = "c") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
   scroll_box(width = "750px", height = "450px")
 ```
