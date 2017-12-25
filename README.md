@@ -21,9 +21,9 @@ Major commits:
 1. 2017-09-13: Corrected Grievous' name.
 1. 2017-11-09: Cleaned up text, added discussion, merged `R1`.
 1. 2017-12-20: Began work on branch for `TLJ` - I hear a new theme for Rose, and the use of "Here they come" / "TIE fighter attack" from `ANH`.
-1. 2017-12-22: Added data from `TLJ`
+1. 2017-12-22: Added data from `TLJ`.
 
-Need to check TFA for a Finn theme. Is the battle between Luke and Kylo Ren a theme? 
+Need to check TFA for a Finn theme. Is the battle between Luke and Kylo Ren a theme?
 
 
 The episodes of *Star Wars Oxygen* that contain some mention of the number of times a theme plays are:
