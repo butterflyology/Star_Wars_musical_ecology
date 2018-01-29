@@ -22,6 +22,7 @@ Major commits:
 1. 2017-11-09: Cleaned up text, added discussion, merged `R1`.
 1. 2017-12-20: Began work on branch for `TLJ` - I hear a new theme for Rose, and the use of "Here they come" / "TIE fighter attack" from `ANH`.
 1. 2017-12-22: Added data from `TLJ`.
+1. 2018-01-28: Heard "Here they come / TIE fighter attack" at 4:25 in to the "Main Title and Escape." It is in the strings in the background. Damn, this score is amazing.
 
 Need to check TFA for a Finn theme. Is the battle between Luke and Kylo Ren a theme?
 

@@ -102,7 +102,7 @@ The data I ended up with, and which are used here, had:
 
 
 ```{r load_data, include = FALSE}
-SW_data <- read.csv("../data/DWC_theme_tracker.csv", header = TRUE, row.names = 1)
+SW_data <- read_csv("../data/DWC_theme_tracker.csv", col_names = TRUE, trim_ws = TRUE, col_types = list(.default = col_integer(), Episode = col_character()))
 dim(SW_data)
 ```
 
@@ -128,9 +128,9 @@ Well, seeing how many times a theme appears in all of the *Star Wars* films can 
 
 ```{r plot_all, echo = FALSE, fig.cap = "**Figure 2**: Plot of all theme appearances", warning = FALSE, message = FALSE, error = FALSE}
 #SW_tidy <- SW_data
-SW_tidy <- as.tibble(SW_data)
+#SW_tidy <- as.tibble(SW_data)
 
-SW_themes_sum <- SW_tidy %>% 
+SW_themes_sum <- SW_data[, -1] %>% 
   gather(key = "Theme") %>%
   mutate(value = as.integer(value)) %>%
   group_by(Theme) %>% 
@@ -152,7 +152,7 @@ plotly_all_themes_str$x$data[[1]]$text <- "Qui Gon's theme - 1"
 plotly_all_themes_str$x$data[[2]]$text <- "Kylo's theme #2 - 15"
 plotly_all_themes_str$x$data[[3]]$text <- "Jango's Escape - 1"
 plotly_all_themes_str$x$data[[4]]$text <- "March of the Resistance - 15"
-plotly_all_themes_str$x$data[[5]]$text <- "Emperor's theme - 15"
+plotly_all_themes_str$x$data[[5]]$text <- "Rose's theme - 17"
 plotly_all_themes_str$x$data[[6]]$text <- "The Rebels - 13"
 plotly_all_themes_str$x$data[[7]]$text <- "Troopers moving - 2"
 plotly_all_themes_str$x$data[[8]]$text <- "Death Star - 11"
@@ -160,21 +160,20 @@ plotly_all_themes_str$x$data[[9]]$text <- "Guardians of the Whills - 7"
 plotly_all_themes_str$x$data[[10]]$text <- "Anakin's theme - 7"
 plotly_all_themes_str$x$data[[11]]$text <- "Camino - 6"
 plotly_all_themes_str$x$data[[12]]$text <- "Luke and Leia's theme - 7"
-plotly_all_themes_str$x$data[[13]]$text <- "Battle Preparations - 4"
-plotly_all_themes_str$x$data[[14]]$text <- "Duel of the Fates - 4"
-plotly_all_themes_str$x$data[[15]]$text <- "The Master Switch - 4"
-plotly_all_themes_str$x$data[[16]]$text <- "Jedi Steps - 4"
-
-plotly_all_themes_str$x$data[[17]]$text <- "Rose's theme - 17"
+plotly_all_themes_str$x$data[[13]]$text <- "TIE Fighter attack - 5"
+plotly_all_themes_str$x$data[[14]]$text <- "Battle Preparations - 4"
+plotly_all_themes_str$x$data[[15]]$text <- "Jedi Steps - 4"
+plotly_all_themes_str$x$data[[16]]$text <- "Duel of the Fates - 4"
+plotly_all_themes_str$x$data[[17]]$text <- "Emperor's theme - 18"
 plotly_all_themes_str$x$data[[18]]$text <- "Snoke - 8"
 plotly_all_themes_str$x$data[[19]]$text <- "Rogue One Theme - 2"
 plotly_all_themes_str$x$data[[20]]$text <- "Droid's theme (TESB) - 11"
 plotly_all_themes_str$x$data[[21]]$text <- "Poe's theme - 8"
-plotly_all_themes_str$x$data[[22]]$text <- "The Message - 4"
+plotly_all_themes_str$x$data[[22]]$text <-  "The Master Switch - 4"
 plotly_all_themes_str$x$data[[23]]$text <- "Falcon theme - 8"
 plotly_all_themes_str$x$data[[24]]$text <- "Separatist Conspiracy theme - 11"
 plotly_all_themes_str$x$data[[25]]$text <- "Battle of the Heroes - 8"
-plotly_all_themes_str$x$data[[26]]$text <- "TIE Fighter attack - 4"
+plotly_all_themes_str$x$data[[26]]$text <- "The Message - 4"
 plotly_all_themes_str$x$data[[27]]$text <- "Arena Monsters - 8"
 plotly_all_themes_str$x$data[[28]]$text <- "Jar Jar's theme - 2"
 plotly_all_themes_str$x$data[[29]]$text <-  "Scarif Battle - 10"
@@ -199,8 +198,8 @@ plotly_all_themes_str$x$data[[47]]$text <- "Yoda's theme - 25"
 plotly_all_themes_str$x$data[[48]]$text <- "Rebel Fanfare - 54"
 plotly_all_themes_str$x$data[[49]]$text <- "Rey's theme - 48"
 plotly_all_themes_str$x$data[[50]]$text <- "Han Solo and the Princess - 33"
-plotly_all_themes_str$x$data[[51]]$text <- "Leia's theme - 32"
-plotly_all_themes_str$x$data[[52]]$text <- "Across the Stars - 31"
+plotly_all_themes_str$x$data[[51]]$text <- "Across the Stars - 31"
+plotly_all_themes_str$x$data[[52]]$text <- "Leia's theme - 31"
 plotly_all_themes_str
 ```
 
@@ -210,15 +209,15 @@ plotly_all_themes_str
 It may also be informative to look at the distribution of themes within each film. I've made a plot where each film is represented by a bar it is filled according to the frequency of the themes in that movie. To explore this figure, hover your cursor over a bar to see the theme and number of times it appeared in that film. Try clicking on `compare data on hover` to see all the themes at once. The color for each theme is consistent across all the films. 
 
 ```{r stacked_histo, echo = FALSE, warning = FALSE, message = FALSE, fig.cap = "**Figure 3**: Themes by film"}
-SW_tidy_2 <- SW_tidy %>% 
-  mutate(Film = as.factor(rownames(SW_data))) %>% 
+SW_data_2 <- SW_data[, -1] %>% 
+  mutate(Film = as.factor(rownames(SW_data[, -1]))) %>% 
   group_by(Film) %>% 
   gather(key = Theme, value = value, -Film) %>% 
   mutate(Theme = as.factor(Theme)) %>% 
   filter(value >= 1) %>% 
   arrange(Theme)
 
-themes_by_film <- ggplot(SW_tidy_2, aes(x = Film, y = value, fill = Theme)) + 
+themes_by_film <- ggplot(SW_data_2, aes(x = Film, y = value, fill = Theme)) + 
   geom_bar(stat = "identity", position = "stack") +
   theme_bw() +
   theme(legend.position = "none") +
@@ -336,7 +335,7 @@ themes_film_str$x$data[[45]]$text[1] <- "The Message - 2"
 themes_film_str$x$data[[45]]$text[2] <- "The Message - 2"
 themes_film_str$x$data[[46]]$text[1] <- "The Rebels - 13"
 themes_film_str$x$data[[47]]$text[1] <- "TIE Fighter Attack - 1"
-themes_film_str$x$data[[47]]$text[2] <- "TIE Fighter Attack - 3"
+themes_film_str$x$data[[47]]$text[2] <- "TIE Fighter Attack - 4"
 themes_film_str$x$data[[48]]$text[1] <- "Trade Federation - 1"
 themes_film_str$x$data[[48]]$text[2] <- "Trade Federation - 2"
 themes_film_str$x$data[[48]]$text[3] <- "Trade Federation - 1"
@@ -372,7 +371,7 @@ I knew it! **The Last Jedi** has the most number of thematic appearances at over
 Now we'll make a tree depicting the relationships between the eight films of the *Star Wars* saga and **Rogue One**, just as we did in the toy example above.
 
 ```{r SW_clust, include = FALSE}
-SW_dist <- vegdist(SW_data, method = "jaccard", diag = FALSE, na.rm = TRUE)
+SW_dist <- vegdist(SW_data[, -1], method = "jaccard", diag = FALSE, na.rm = TRUE)
 
 SW_clust <- hclust(SW_dist, method = "complete")
 ```
@@ -402,15 +401,15 @@ Spoon <- matrix(data = NA, ncol = 1, nrow = 6)
   return(Spoon)
 }
 
-EIa <- D.iter.q(data = SW_data[1, ], level = "alpha", q = 5)
-EIIa <- D.iter.q(data = SW_data[2, ], level = "alpha", q = 5)
-EIIIa <- D.iter.q(data = SW_data[3, ], level = "alpha", q = 5)
-EIVa <- D.iter.q(data = SW_data[4, ], level = "alpha", q = 5)
-EVa <- D.iter.q(data = SW_data[5, ], level = "alpha", q = 5)
-EVIa <- D.iter.q(data = SW_data[6, ], level = "alpha", q = 5)
-EVIIa <- D.iter.q(data = SW_data[7, ], level = "alpha", q = 5)
-EVIIIa <- D.iter.q(data = SW_data[8, ], level = "alpha", q = 5)
-ROnea <- D.iter.q(data = SW_data[9, ], level = "alpha", q = 5)
+EIa <- D.iter.q(data = SW_data[1, -1], level = "alpha", q = 5)
+EIIa <- D.iter.q(data = SW_data[2, -1], level = "alpha", q = 5)
+EIIIa <- D.iter.q(data = SW_data[3, -1], level = "alpha", q = 5)
+EIVa <- D.iter.q(data = SW_data[4, -1], level = "alpha", q = 5)
+EVa <- D.iter.q(data = SW_data[5, -1], level = "alpha", q = 5)
+EVIa <- D.iter.q(data = SW_data[6, -1], level = "alpha", q = 5)
+EVIIa <- D.iter.q(data = SW_data[7, -1], level = "alpha", q = 5)
+EVIIIa <- D.iter.q(data = SW_data[8, -1], level = "alpha", q = 5)
+ROnea <- D.iter.q(data = SW_data[9, -1], level = "alpha", q = 5)
 ```
 
 
